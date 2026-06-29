@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>밥줘 🍚 | AI 스마트 학식 주문</title>
+  <!-- 공모전 제출용 단일 HTML: CSS, JavaScript, AI 예측 로직, Firebase/OpenAI 연동 구조 포함 -->
+  <meta name="theme-color" content="#1D9E75" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <style>
+    :root{
+      --primary:#1D9E75; --primary-2:#27bf90; --dark:#085041; --bg:#f7f9f7; --body:#e9eee9;
+      --card:#fff; --text:#17211d; --muted:#7a8781; --line:#e7ece8; --soft:#eaf7f1;
+      --warn:#EF9F27; --danger:#E24B4A; --blue:#3b82f6; --shadow:0 14px 34px rgba(8,80,65,.1);
+      --radius:22px; --ease:cubic-bezier(.2,.8,.2,1);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%}
+    body{font-family:'Noto Sans KR',system-ui,sans-serif;background:var(--body);color:var(--text);display:flex;justify-content:center;line-height:1.45}
+    button,input,select{font-family:inherit} button{cursor:pointer;border:0;background:none;color:inherit}
+    .app{width:100%;max-width:480px;min-height:100dvh;background:var(--bg);position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 0 0 1px rgba(0,0,0,.02),0 22px 60px rgba(0,0,0,.14)}
+    .main{flex:1;overflow-y:auto;padding-bottom:92px;scroll-behavior:smooth}.main::-webkit-scrollbar{display:none}
+    .page{display:none;animation:pageIn .26s var(--ease)}.page.active{display:block}@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .hero{padding:22px 20px 24px;background:linear-gradient(135deg,var(--primary),var(--dark));color:#fff;border-radius:0 0 30px 30px;position:relative;overflow:hidden}.hero:before{content:"";position:absolute;right:-60px;top:-60px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.12)}
+    .topbar,.row,.between{display:flex;align-items:center;justify-content:space-between}.brand{position:relative}.logo{font-size:28px;font-weight:800;letter-spacing:-.8px}.sub{font-size:12px;opacity:.78;margin-top:2px}.icon-btn{width:42px;height:42px;border-radius:15px;background:rgba(255,255,255,.16);display:grid;place-items:center;transition:.22s}.icon-btn:hover{background:rgba(255,255,255,.25);transform:translateY(-1px)}.icon-btn:active{transform:scale(.96)}
+    .hello{margin-top:20px}.hello b{font-size:18px}.hello p{font-size:13px;opacity:.78;margin-top:4px}
+    .section{padding:18px 18px 0}.section-title{font-size:17px;font-weight:800;letter-spacing:-.4px;margin-bottom:12px;display:flex;align-items:center;gap:7px}.section-title i{color:var(--primary)}
+    .grid{display:grid;gap:12px}.grid.two{grid-template-columns:1fr 1fr}.card{background:var(--card);border:1px solid rgba(8,80,65,.06);border-radius:var(--radius);box-shadow:0 8px 24px rgba(8,80,65,.06);transition:transform .23s var(--ease),box-shadow .23s var(--ease),border-color .23s}.card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:rgba(29,158,117,.22)}.pad{padding:18px}
+    .ai-card{margin:-8px 18px 0;position:relative;z-index:2}.ai-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--dark);background:var(--soft);padding:7px 10px;border-radius:999px}.status{font-size:34px;font-weight:800;letter-spacing:-1px;margin-top:10px}.status.good{color:var(--primary)}.status.mid{color:var(--warn)}.status.bad{color:var(--danger)}.status.closed{color:var(--muted);font-size:30px}.score-ring{width:82px;height:82px;border-radius:50%;background:conic-gradient(var(--primary) 0deg,#e8efe9 0deg);display:grid;place-items:center;flex:0 0 auto}.score-ring span{width:60px;height:60px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:18px;font-weight:800;color:var(--dark)}
+    .metric{display:flex;gap:8px;margin-top:14px}.metric .mini{flex:1;background:#f8fbf9;border-radius:16px;padding:11px}.mini small{font-size:11px;color:var(--muted)}.mini b{display:block;font-size:18px;margin-top:2px}.refresh{display:inline-flex;align-items:center;gap:6px;background:var(--dark);color:#fff;border-radius:14px;padding:10px 12px;font-size:12px;font-weight:700;transition:.22s}.refresh.loading i{animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    .recommend{background:linear-gradient(135deg,#e9f8ef,#d9f0cd);border-color:#c4e4b7}.rec-time{font-size:26px;font-weight:800;color:var(--dark);letter-spacing:-.8px}.reason{font-size:13px;color:#3c6c2b;margin-top:7px}.confidence{margin-top:12px;height:8px;background:rgba(8,80,65,.12);border-radius:999px;overflow:hidden}.confidence span{display:block;height:100%;width:92%;background:linear-gradient(90deg,var(--primary),var(--dark));border-radius:999px;transition:.45s}
+    .home-insight{gap:10px}.home-insight .pad{padding:13px 14px}.home-insight .badge{font-size:11px;padding:6px 9px}.home-insight .rec-time{font-size:23px;margin-top:9px;line-height:1.1}.home-insight small{font-size:11px}.home-insight .mini{padding:8px 0;border-radius:0;background:transparent}.home-insight .mini b{font-size:20px;letter-spacing:-.5px}.home-insight .mini small{white-space:nowrap}.compact-rec .confidence-line{margin-top:10px}.compact-rec .confidence-line small{display:flex;justify-content:space-between;color:#3c6c2b;font-weight:800;margin-bottom:5px}.compact-rec .confidence{display:block;height:7px;margin-top:0;background:rgba(8,80,65,.14)}.compact-status{display:flex;flex-direction:column;gap:0}.compact-status .badge{margin-bottom:4px}.compact-status .status-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:2px;align-items:start}.compact-status .mini{padding-top:2px!important;padding-bottom:2px!important}.compact-status #openStateText{display:block;margin-top:4px;color:var(--muted);font-weight:800;font-size:11px}
+    .quick{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.quick button{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px;text-align:left;transition:.22s;position:relative;overflow:hidden}.quick button:hover{border-color:var(--primary);transform:translateY(-2px)}.quick i{font-size:26px;color:var(--primary)}.quick b{display:block;margin-top:8px;font-size:14px}.quick small{color:var(--muted);font-size:11px}
+
+    .install-dismiss{width:32px;height:32px;border-radius:12px;background:rgba(8,80,65,.08);color:var(--muted);display:grid;place-items:center;transition:.2s}.install-dismiss:hover{background:rgba(8,80,65,.12);color:var(--dark)}
+
+    .qr-fallback{width:160px;height:160px;border:2px dashed rgba(29,158,117,.35);border-radius:18px;display:grid;place-items:center;text-align:center;color:var(--dark);font-size:13px;font-weight:800;background:#f8fbf9;padding:14px;margin:0 auto}.error-card{margin:18px;padding:14px;border-radius:18px;background:#fff4f4;color:#9a2424;border:1px solid #ffd0d0;font-size:13px}    .skeleton{position:relative;overflow:hidden;background:#edf2ee!important;color:transparent!important}.skeleton:after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);animation:shimmer 1.2s infinite}@keyframes shimmer{to{transform:translateX(100%)}}
+    .tabs,.date-tabs,.cat-tabs{display:flex;gap:8px;overflow-x:auto;padding:0 18px 12px}.tabs::-webkit-scrollbar,.date-tabs::-webkit-scrollbar,.cat-tabs::-webkit-scrollbar{display:none}.chip{flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 14px;font-size:13px;font-weight:700;color:var(--muted);transition:.22s}.chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+    .menu-list{padding:0 18px;display:grid;gap:12px}.menu{display:flex;align-items:center;gap:13px;padding:14px}.food{width:58px;height:58px;border-radius:18px;background:var(--soft);display:grid;place-items:center;font-size:30px;flex:0 0 auto}.menu h3{font-size:16px}.menu p{font-size:12px;color:var(--muted);margin-top:2px}.menu-price{font-weight:800;color:var(--dark);margin-top:6px}.add{width:38px;height:38px;border-radius:14px;background:var(--primary);color:#fff;display:grid;place-items:center;transition:.2s}.add:hover{background:var(--dark);transform:scale(1.05)}.add:active{transform:scale(.92)}
+    .cart-panel{position:sticky;bottom:0;margin:18px;background:linear-gradient(90deg,var(--primary),var(--dark));color:#fff;border-radius:20px;padding:14px 16px;box-shadow:0 14px 28px rgba(29,158,117,.25);display:none;align-items:center;justify-content:space-between;gap:12px;animation:rise .25s}.cart-panel.show{display:flex}@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}.cart-actions{display:flex;align-items:center;gap:10px}.cart-order-btn{background:#fff;color:var(--dark);border-radius:14px;padding:10px 13px;font-size:13px;font-weight:800;white-space:nowrap;box-shadow:0 8px 18px rgba(0,0,0,.12);transition:.2s}.cart-order-btn:hover{transform:translateY(-1px)}.cart-order-btn:active{transform:scale(.96)}.primary-btn{width:100%;padding:15px;background:linear-gradient(90deg,var(--primary),var(--dark));color:#fff;border-radius:17px;font-weight:800;box-shadow:0 10px 20px rgba(29,158,117,.22);transition:.22s}.primary-btn:hover{transform:translateY(-1px)}.primary-btn:active{transform:scale(.98)}
+    .orders{padding:18px;display:grid;gap:14px}.order-card{overflow:hidden}.order-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.order-title{font-size:18px;font-weight:850;letter-spacing:-.5px}.order-menu{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.45}.tag{font-size:11px;font-weight:800;border-radius:999px;padding:6px 9px;background:var(--soft);color:var(--dark);white-space:nowrap}.tag.cooking{background:#fff4df;color:#9a5a00}.tag.done{background:#eaf7f1;color:var(--primary)}.pickup-hero{margin-top:14px;padding:14px;border-radius:18px;background:linear-gradient(135deg,#eefbf5,#f8fbf9);border:1px solid #dceee6;display:flex;align-items:center;justify-content:space-between;gap:12px}.pickup-hero small{display:block;font-size:11px;color:var(--muted);font-weight:800}.pickup-hero b{font-size:25px;color:var(--dark);letter-spacing:-.8px}.pickup-hero i{font-size:34px;color:var(--primary)}.stepper{margin-top:16px}.step{display:flex;gap:12px;position:relative;padding-bottom:17px}.step:not(:last-child):before{content:"";position:absolute;left:16px;top:32px;width:2px;height:calc(100% - 28px);background:#dde7e0}.step.done:before{background:var(--primary)}.dot{width:34px;height:34px;border-radius:50%;background:#eaf0ec;color:#9ca6a0;display:grid;place-items:center;position:relative;z-index:1}.step.done .dot{background:var(--primary);color:#fff}.step.active .dot{background:#fff;border:2px solid var(--primary);color:var(--primary);animation:pulse 1.4s infinite}@keyframes pulse{50%{box-shadow:0 0 0 8px rgba(29,158,117,.1)}}.order-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}.ghost-btn{width:100%;padding:14px;border-radius:17px;background:#f0f6f3;color:var(--dark);font-weight:850;transition:.22s}.ghost-btn:hover{transform:translateY(-1px);background:#e6f3ec}.empty{text-align:center;color:#7f8d86;padding:54px 22px;background:#fff;border:1px dashed #cfdbd4;border-radius:24px}.empty i{font-size:56px;display:block;margin-bottom:10px;color:#b7c7bf}.empty b{display:block;color:var(--dark);font-size:17px;margin-bottom:5px}.empty p{font-size:13px;line-height:1.45}.empty .primary-btn{margin-top:18px}
+    .chart-card{padding:18px}
+    .info-page .section{padding-top:14px}.range-card{padding:14px 16px 2px}.chart-card.info-chart{padding:18px 16px}.chart-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}.chart-head h2{margin-bottom:3px}.chart-head p{font-size:11px;color:var(--muted)}.bar-chart{margin-top:14px;border:1px solid #e4eee8;border-radius:24px;background:linear-gradient(180deg,#fff,#f8fcfa);padding:16px 13px 15px;box-shadow:inset 0 1px 0 rgba(255,255,255,.75)}.chart-badge{width:max-content;max-width:100%;margin:0 auto 14px;padding:8px 13px;border:1px solid #dfece5;border-radius:999px;background:#fff;color:var(--dark);font-size:12px;font-weight:900;display:flex;align-items:center;gap:7px;box-shadow:0 6px 16px rgba(8,80,65,.05)}.chart-badge i{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#65cfae,var(--primary));color:#fff;display:grid;place-items:center;font-size:14px}.chart-plot{display:grid;grid-template-columns:28px 1fr;gap:8px;height:206px}.y-axis{display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;padding:0 0 25px;color:#76837d;font-size:11px;font-weight:900}.bars-area{position:relative;display:flex;align-items:flex-end;gap:5px;height:100%;padding:0 2px 25px;border-left:1px solid #dce7e0;border-bottom:1px solid #dce7e0;background:repeating-linear-gradient(to top,transparent 0,transparent 24.5%,rgba(214,229,221,.8) 25%,transparent 25.7%)}.bar-row{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;position:relative}.bar-track{width:100%;height:100%;display:flex;align-items:flex-end;justify-content:center}.bar{width:100%;max-width:24px;min-height:5px;border-radius:10px 10px 3px 3px;background:var(--primary);transition:height .55s var(--ease),transform .22s var(--ease);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 8px 15px rgba(19,116,89,.11)}.bar:hover{transform:translateY(-3px)}.bar.low{background:linear-gradient(180deg,#9fe1cb,#6bd2b3)}.bar.mid{background:linear-gradient(180deg,#ffd75f,var(--warn))}.bar.high{background:linear-gradient(180deg,#ff7f75,var(--danger))}.bar.now{background:linear-gradient(180deg,#19b98b,var(--dark));box-shadow:0 0 0 3px rgba(8,80,65,.11),0 9px 18px rgba(8,80,65,.22)}.bar-time{font-size:10px;color:#6f7d76;font-weight:900;text-align:center;white-space:nowrap;position:absolute;bottom:-20px;left:50%;transform:translateX(-50%)}.chart-analysis{margin-top:14px;padding:14px;border-radius:21px;background:linear-gradient(135deg,#eefbf6,#fbfffd);border:1px solid #d6eee3;display:flex;gap:12px;align-items:center}.chart-analysis .bot{width:44px;height:44px;border-radius:50%;background:#fff;border:1px solid #dceee6;display:grid;place-items:center;color:var(--primary);font-size:25px;box-shadow:0 8px 18px rgba(8,80,65,.07);flex:0 0 auto}.chart-analysis b{font-size:13px;color:var(--dark)}.chart-analysis p{font-size:12px;color:#25342d;margin-top:3px;line-height:1.45}.legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px;font-size:11px;color:var(--muted)}.legend span{display:flex;align-items:center;gap:5px}.legend i{width:22px;height:12px;border-radius:999px;display:inline-block}.ai-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ai-info-card{padding:14px 15px}.ai-info-card .badge{font-size:11px;padding:6px 8px}.ai-info-card .rec-time{font-size:21px;margin-top:9px;line-height:1.1}.ai-info-card .reason{font-size:12px;line-height:1.45}.ai-info-card .confidence-line{margin-top:10px}.ai-info-card .confidence-line small{display:flex;justify-content:space-between;color:var(--dark);font-size:11px;font-weight:800;margin-bottom:5px}.alert-card{padding:14px 15px;display:flex;align-items:center;justify-content:space-between;gap:12px}.alert-card h3{font-size:14px}.alert-card p{font-size:11px;color:var(--muted);margin-top:2px}.info-list{display:grid;gap:10px}.info-row{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}.info-row:last-child{border-bottom:0}.switch{width:48px;height:28px;border-radius:999px;background:#d9e2dd;position:relative;transition:.2s}.switch:before{content:"";position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}.switch.on{background:var(--primary)}.switch.on:before{left:24px}
+    .nav{position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:9px 8px 15px;z-index:30}.nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;color:#99a49e;font-size:11px;font-weight:700;padding:6px;border-radius:16px;transition:.22s}.nav button i{font-size:23px}.nav button.active{color:var(--primary);background:var(--soft)}
+    .toast{position:absolute;left:50%;bottom:95px;transform:translate(-50%,20px);background:rgba(17,24,21,.88);color:#fff;border-radius:999px;padding:11px 17px;font-size:13px;z-index:80;opacity:0;pointer-events:none;transition:.28s;white-space:nowrap}.toast.show{opacity:1;transform:translate(-50%,0)}
+    .modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:18px;z-index:70}.modal-backdrop.open{display:flex}.modal{width:100%;max-width:350px;background:#fff;border-radius:26px;padding:22px;text-align:center;animation:pop .22s var(--ease)}@keyframes pop{from{transform:scale(.94);opacity:.5}to{transform:scale(1);opacity:1}}#qrCode{width:180px;height:180px;margin:16px auto;padding:10px;border:1px solid var(--line);border-radius:18px;display:grid;place-items:center}.copy-url{background:#f3f7f4;border-radius:14px;padding:10px;font-size:12px;color:var(--muted);word-break:break-all;margin:10px 0}.close-btn{width:100%;padding:13px;border-radius:15px;background:#eef5f1;font-weight:800;margin-top:8px}
+    .ripple{position:relative;overflow:hidden}.ripple .wave{position:absolute;border-radius:50%;transform:scale(0);animation:ripple .55s linear;background:rgba(255,255,255,.45);pointer-events:none}@keyframes ripple{to{transform:scale(4);opacity:0}}
+    @media (max-width:480px){body{background:var(--bg)}.app{max-width:none;box-shadow:none}.hero{border-radius:0 0 26px 26px}}
+    @media (min-width:720px){.app{max-width:480px}.tablet-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tablet-grid>.card{margin:0}.section.tablet{padding-left:18px;padding-right:18px}}
+
+    /* 관리자 대시보드 */
+    .admin-hero{background:linear-gradient(135deg,#0b6b56,#063b31)}
+    .admin-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:18px 18px 0}
+    .admin-kpi{padding:14px;border-radius:20px;background:#fff;border:1px solid rgba(8,80,65,.07);box-shadow:0 8px 22px rgba(8,80,65,.06)}
+    .admin-kpi small{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:11px;font-weight:800;white-space:nowrap}.admin-kpi small i{color:var(--primary);font-size:14px}
+    .admin-kpi b{display:block;margin-top:5px;font-size:24px;letter-spacing:-.7px;color:var(--dark)}
+    .admin-kpi em{display:block;margin-top:2px;font-style:normal;font-size:11px;color:var(--muted)}
+    .admin-card{padding:16px 16px 14px}.admin-card h3{font-size:15px;font-weight:850;display:flex;align-items:center;gap:7px;margin-bottom:12px}.admin-card h3 i{color:var(--primary)}
+        .admin-queue{display:grid;gap:9px}.admin-order{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border-radius:16px;background:#f8fbf9;border:1px solid #edf3ef}.admin-order b{font-size:13px}.admin-order p{font-size:11px;color:var(--muted);margin-top:2px}.admin-order .tag{font-size:10px}
+    .rank-list{display:grid;gap:10px}.rank-item{display:grid;grid-template-columns:54px 1fr auto;align-items:center;gap:10px}.rank-num{width:34px;height:34px;border-radius:13px;background:var(--soft);display:grid;place-items:center;font-weight:900;color:var(--dark)}.rank-name b{font-size:13px}.rank-name small{display:block;color:var(--muted);font-size:11px}.rank-bar{height:7px;background:#edf4ef;border-radius:999px;overflow:hidden;margin-top:6px}.rank-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--dark))}.rank-sale{font-size:13px;font-weight:900;color:var(--dark)}
+    .admin-ai-box{display:flex;align-items:flex-start;gap:11px;background:linear-gradient(135deg,#e9f8ef,#f8fbf9);border:1px solid #d9eee4;border-radius:18px;padding:13px}.admin-ai-box i{font-size:25px;color:var(--primary)}.admin-ai-box b{font-size:14px}.admin-ai-box p{font-size:12px;color:#46735d;margin-top:3px;line-height:1.5}
+    .forecast-card{position:relative;overflow:hidden;background:linear-gradient(135deg,#ffffff 0%,#f2fbf6 100%)}
+    .forecast-card:before{content:"";position:absolute;right:-38px;top:-42px;width:130px;height:130px;border-radius:50%;background:rgba(29,158,117,.10)}
+    .forecast-top{position:relative;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}.forecast-title b{font-size:16px;letter-spacing:-.4px}.forecast-title p{font-size:11px;color:var(--muted);margin-top:2px}.forecast-badge{font-size:11px;font-weight:900;color:var(--dark);background:#e7f7ef;border:1px solid #ccebdd;border-radius:999px;padding:7px 10px;white-space:nowrap}
+    .forecast-main{position:relative;display:grid;grid-template-columns:1.2fr .8fr;gap:10px;margin-bottom:12px}.forecast-total{border-radius:20px;background:linear-gradient(135deg,var(--primary),var(--dark));padding:15px;color:#fff;box-shadow:0 12px 24px rgba(29,158,117,.18)}.forecast-total small{display:block;font-size:11px;opacity:.82;font-weight:800}.forecast-total b{display:block;font-size:30px;letter-spacing:-1px;margin-top:4px}.forecast-total em{font-style:normal;font-size:11px;opacity:.82}.forecast-side{display:grid;gap:8px}.forecast-mini{padding:11px;border-radius:17px;background:#fff;border:1px solid #e7f2ec}.forecast-mini small{font-size:10px;color:var(--muted);font-weight:800}.forecast-mini b{display:block;font-size:17px;color:var(--dark);margin-top:2px}
+    .forecast-recipe{position:relative;display:grid;gap:8px;margin-top:4px}.forecast-row{display:grid;grid-template-columns:86px 1fr 48px;align-items:center;gap:8px;padding:9px 10px;background:#fff;border:1px solid #e9f2ed;border-radius:15px}.forecast-row b{font-size:12px}.forecast-row .mini-bar{height:8px;border-radius:999px;background:#edf4ef;overflow:hidden}.forecast-row .mini-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--dark))}.forecast-row em{font-style:normal;text-align:right;font-size:12px;font-weight:900;color:var(--dark)}
+    .forecast-note{position:relative;margin-top:11px;padding:12px;border-radius:16px;background:#fff8ec;border:1px solid #f6d99f;color:#684006;font-size:12px;line-height:1.55}.forecast-note b{display:block;font-size:12px;margin-bottom:3px}.forecast-note i{color:var(--warn);margin-right:4px}
+
+    /* 개발자/시연 모드 */
+    .dev-card{background:linear-gradient(135deg,#ffffff,#f3fbf7);border-color:#d8eee3}
+    .dev-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}.dev-head b{font-size:15px;display:flex;align-items:center;gap:6px}.dev-head b i{color:var(--primary)}.dev-head p{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.45}.dev-live{font-size:10px;font-weight:900;border-radius:999px;padding:6px 8px;background:#edf5f1;color:var(--dark);white-space:nowrap}
+    .demo-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.demo-option{padding:10px 5px;border-radius:15px;background:#fff;border:1px solid #dfeae4;color:var(--muted);font-size:11px;font-weight:900;transition:.22s}.demo-option:hover{transform:translateY(-1px);border-color:var(--primary)}.demo-option.active{background:var(--dark);color:#fff;border-color:var(--dark);box-shadow:0 8px 18px rgba(8,80,65,.18)}.demo-option.low.active{background:var(--primary);border-color:var(--primary)}.demo-option.mid.active{background:var(--warn);border-color:var(--warn)}.demo-option.high.active{background:#e36b3d;border-color:#e36b3d}.demo-option.peak.active{background:var(--danger);border-color:var(--danger)}
+    .demo-note{margin-top:10px;padding:10px 11px;border-radius:15px;background:#fff;border:1px solid #e4eee8;color:#4d6258;font-size:11px;line-height:1.45}.demo-note b{color:var(--dark)}
+    @media(max-width:380px){.nav button{font-size:10px;padding:5px 3px}.nav button i{font-size:21px}.admin-summary{gap:8px}.admin-kpi b{font-size:21px}}
+  
+    /* CDN 차단/오프라인 대비: Tabler Icons 로딩 실패 시 이모지 아이콘으로 자동 대체 */
+    body.emoji-icons .ti{font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',system-ui,sans-serif!important;font-style:normal!important;font-weight:400!important;line-height:1;display:inline-grid;place-items:center}
+    body.emoji-icons .ti::before{content:"•";font-family:inherit!important;color:currentColor!important}
+    body.emoji-icons .ti-home::before{content:"🏠"} body.emoji-icons .ti-qrcode::before{content:"▣"} body.emoji-icons .ti-brain::before{content:"🤖"}
+    body.emoji-icons .ti-refresh::before{content:"↻"} body.emoji-icons .ti-sparkles::before{content:"✨"} body.emoji-icons .ti-building-store::before{content:"🏫"}
+    body.emoji-icons .ti-bolt::before{content:"⚡"} body.emoji-icons .ti-tools-kitchen-2::before{content:"🍽️"} body.emoji-icons .ti-receipt::before{content:"🧾"}
+    body.emoji-icons .ti-chart-bar::before{content:"📊"} body.emoji-icons .ti-category::before{content:"☰"} body.emoji-icons .ti-bell::before{content:"🔔"}
+    body.emoji-icons .ti-info-circle::before{content:"ℹ️"} body.emoji-icons .ti-device-desktop-analytics::before{content:"🖥️"} body.emoji-icons .ti-users::before{content:"👥"}
+    body.emoji-icons .ti-cash::before{content:"💳"} body.emoji-icons .ti-list-check::before{content:"✅"} body.emoji-icons .ti-trophy::before{content:"🏆"}
+    body.emoji-icons .ti-calendar-stats::before{content:"📅"} body.emoji-icons .ti-bulb::before{content:"💡"} body.emoji-icons .ti-robot::before{content:"🤖"}
+    body.emoji-icons .ti-dashboard::before{content:"📋"} body.emoji-icons .ti-wave-sine::before{content:"〰️"} body.emoji-icons .ti-plus::before{content:"＋"}
+    body.emoji-icons .ti-receipt-off::before{content:"🧾"} body.emoji-icons .ti-circle-check::before{content:"✅"} body.emoji-icons .ti-clock-hour-4::before{content:"🕓"}
+    body.emoji-icons .ti-check::before{content:"✓"} body.emoji-icons .ti-clock::before{content:"⏱️"} body.emoji-icons .ti-circle::before{content:"○"}
+
+
+    /* 최종 UI 정리: 카드 간격, 버튼 톤, 관리자 화면 균형, 모바일 시연 가독성 개선 */
+    body{background:radial-gradient(circle at top,#f4faf6 0,#e9eee9 42%,#dfe7e2 100%)}
+    .app{background:linear-gradient(180deg,#f8fbf9 0%,var(--bg) 28%,#f3f7f4 100%)}
+    .main{padding-bottom:88px}
+    .hero{padding:21px 20px 23px;border-radius:0 0 28px 28px;box-shadow:0 12px 26px rgba(8,80,65,.10)}
+    .logo{font-size:26px;letter-spacing:-.9px}.sub{font-size:11.5px}.hello{margin-top:17px}.hello b{font-size:17px}.hello p{font-size:12.5px}
+    .section{padding:16px 16px 0}.section-title{font-size:16px;margin-bottom:10px}.pad{padding:16px}
+    .card{border-color:rgba(8,80,65,.075);box-shadow:0 8px 22px rgba(8,80,65,.055)}
+    .card:hover{transform:translateY(-1px);box-shadow:0 13px 30px rgba(8,80,65,.095)}
+    .ai-card{margin:-10px 16px 0}.status{font-size:32px}.score-ring{width:78px;height:78px}.score-ring span{width:58px;height:58px}
+    .metric{gap:9px}.metric .mini{padding:10px 11px}.mini b{font-size:18px}.refresh{padding:9px 11px;border-radius:13px}
+    .home-insight{gap:9px}.home-insight .pad{padding:12px 13px}.home-insight .rec-time{font-size:22px}.compact-rec .confidence{height:6px}.compact-status .status-grid{gap:8px}.compact-status #openStateText{margin-top:3px}
+    .quick{gap:10px}.quick button{border-radius:19px;padding:15px 14px}.quick i{font-size:25px}.quick b{font-size:13.5px;margin-top:7px}.quick small{font-size:10.8px}
+    .chip{padding:8px 13px;font-size:12.5px}.cat-tabs{padding:0 16px 11px}.menu-list{padding:0 16px;gap:11px}.menu{padding:13px;border-radius:20px}.food{width:56px;height:56px}.cart-panel{margin:16px;border-radius:19px}
+    .orders{padding:16px;gap:12px}.order-title{font-size:17px}.pickup-hero{padding:13px;border-radius:17px}.step{padding-bottom:15px}.order-actions{gap:9px}.ghost-btn,.primary-btn{border-radius:16px}
+    .chart-card.info-chart{padding:16px 14px}.chart-head{margin-bottom:6px}.bar-chart{border-radius:22px;padding:14px 11px 14px}.chart-plot{height:198px}.bars-area{gap:4px}.bar{max-width:23px}.legend{gap:8px;margin-top:12px}.legend span{font-size:10.5px}.chart-analysis{margin-top:12px;padding:12px;border-radius:19px}.chart-analysis .bot{width:40px;height:40px;font-size:23px}.chart-analysis p{font-size:11.5px}
+    .alert-card{padding:13px 14px}.info-row{font-size:13px;padding:11px 0}
+    .nav{padding:8px 8px 13px;border-top-color:rgba(8,80,65,.08);box-shadow:0 -12px 30px rgba(8,80,65,.08)}
+    .nav button{font-size:10.8px;font-weight:800;border-radius:15px;padding:6px 4px}.nav button i{font-size:22px}.nav button.active{background:linear-gradient(180deg,#e9f8f1,#f5fbf8);box-shadow:inset 0 0 0 1px rgba(29,158,117,.08)}
+    .admin-page .section{padding:14px 16px 0}.admin-summary{padding:14px 16px 0;gap:9px}.admin-kpi{padding:13px;border-radius:19px;min-height:92px}.admin-kpi small{font-size:10.5px}.admin-kpi b{font-size:23px;margin-top:4px}.admin-kpi em{font-size:10.5px}.admin-card{padding:15px;border-radius:21px}.admin-card h3{font-size:14.5px;margin-bottom:10px}.admin-order{padding:10px 11px;border-radius:15px}.rank-item{grid-template-columns:48px 1fr auto;gap:9px}.rank-num{width:32px;height:32px;border-radius:12px}.rank-sale{font-size:12px}
+    .forecast-top{margin-bottom:10px}.forecast-title b{font-size:15.5px}.forecast-main{gap:9px;margin-bottom:10px}.forecast-total{padding:14px;border-radius:18px}.forecast-total b{font-size:28px}.forecast-mini{padding:10px;border-radius:15px}.forecast-row{grid-template-columns:76px 1fr 46px;padding:8px 9px}.forecast-note{padding:11px;border-radius:15px}
+    .dev-head{margin-bottom:10px}.dev-head b{font-size:14.5px}.demo-grid{gap:6px}.demo-option{padding:9px 4px;border-radius:14px;font-size:10.5px}.demo-note{padding:9px 10px;border-radius:14px}
+    .toast{bottom:92px;max-width:calc(100% - 36px);overflow:hidden;text-overflow:ellipsis}
+    @media(hover:none){.card:hover,.quick button:hover,.primary-btn:hover,.ghost-btn:hover,.refresh:hover,.add:hover,.cart-order-btn:hover,.demo-option:hover{transform:none}}
+    @media(max-width:360px){.grid.two{gap:8px}.home-insight .badge{font-size:10px}.home-insight .rec-time{font-size:20px}.home-insight .mini b{font-size:18px}.admin-kpi b{font-size:20px}.forecast-main{grid-template-columns:1fr}.demo-grid{grid-template-columns:repeat(3,1fr)}}
+
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <main class="main" id="main">
+      <section class="page active" id="homePage">
+        <header class="hero">
+          <div class="topbar">
+            <div class="brand"><div class="logo">밥줘 🍚</div><div class="sub">강원대학교 삼척캠퍼스 스마트 학식</div></div>
+            <button class="icon-btn ripple" id="qrTopBtn" aria-label="QR 열기"><i class="ti ti-qrcode"></i></button>
+          </div>
+          <div class="hello"><b>오늘도 빠르게, 맛있게!</b><p>AI가 혼잡한 시간을 피해서 방문 시간을 추천해요.</p></div>
+        </header>
+        <article class="card pad ai-card" id="aiCard">
+          <div class="ai-head">
+            <div><span class="badge"><i class="ti ti-brain"></i> AI 실시간 혼잡도</span><div class="status good" id="levelText">분석중</div></div>
+            <div class="score-ring" id="scoreRing"><span id="scoreText">--</span></div>
+          </div>
+          <div class="metric">
+            <div class="mini"><small>현재 대기 인원</small><b id="waitCount">--명</b></div>
+            <div class="mini"><small>예상 대기시간</small><b id="waitMin">--분</b></div>
+          </div>
+          <div class="between" style="margin-top:14px"><small id="lastUpdated" style="color:var(--muted)">AI 분석 준비 중</small><button class="refresh ripple" id="refreshBtn"><i class="ti ti-refresh"></i> 새로고침</button></div>
+        </article>
+        <section class="section">
+          <div class="grid two home-insight">
+            <article class="card pad recommend compact-rec"><span class="badge"><i class="ti ti-sparkles"></i> AI 추천 방문시간</span><div class="rec-time" id="recTime">--:--</div><div class="confidence-line"><small id="confidenceText">신뢰도 --%</small><div class="confidence"><span id="confidenceBar"></span></div></div></article>
+            <article class="card pad compact-status"><span class="badge"><i class="ti ti-building-store"></i> 식당 현황</span><div class="status-grid"><div class="mini"><small>픽업 대기인원</small><b id="homeWaiting">--명</b></div><div class="mini"><small>예상 잔여 좌석</small><b id="remainSeats">--석</b></div></div><small id="openStateText">운영 상태 확인 중</small></article>
+          </div>
+        </section>
+        <section class="section"><h2 class="section-title"><i class="ti ti-bolt"></i> 빠른 메뉴</h2><div class="quick"><button class="ripple" data-go="order"><i class="ti ti-tools-kitchen-2"></i><b>메뉴 주문</b><small>키오스크 없이 사전주문</small></button><button class="ripple" data-go="history"><i class="ti ti-receipt"></i><b>주문내역</b><small>픽업 상태 실시간 확인</small></button><button class="ripple" data-go="info"><i class="ti ti-chart-bar"></i><b>혼잡도 차트</b><small>06시~18시 예측</small></button><button class="ripple" id="qrQuickBtn"><i class="ti ti-qrcode"></i><b>QR 공유</b><small>앱 링크 복사</small></button></div></section>
+      </section>
+
+      <section class="page" id="orderPage">
+        <header class="hero"><div class="topbar"><div><div class="logo">메뉴 주문</div><div class="sub">원하는 시간에 셀프 픽업하세요</div></div><button class="icon-btn ripple" data-go="home"><i class="ti ti-home"></i></button></div></header>
+        <section class="section" style="padding-top:4px"><h2 class="section-title"><i class="ti ti-category"></i> 카테고리</h2></section><div class="cat-tabs" id="catTabs"></div>
+        <div class="menu-list" id="menuList"></div>
+        <div class="cart-panel" id="cartPanel"><div><b id="cartCount">0개 담김</b><br><small>예상 조리 8분 · 셀프 픽업</small></div><div class="cart-actions"><strong id="cartTotal">0원</strong><button class="cart-order-btn ripple" id="payBtn">주문하기</button></div></div>
+      </section>
+
+      <section class="page" id="historyPage">
+        <header class="hero"><div class="topbar"><div><div class="logo">주문내역</div><div class="sub">접수 → 조리중 → 픽업완료</div></div><button class="icon-btn ripple" data-go="home"><i class="ti ti-home"></i></button></div></header>
+        <div class="orders" id="orders"></div>
+      </section>
+
+      <section class="page info-page" id="infoPage">
+        <header class="hero"><div class="topbar"><div><div class="logo">식당정보</div><div class="sub">오늘 · 이번주 · 이번달 AI 혼잡도</div></div><button class="icon-btn ripple" data-go="home"><i class="ti ti-home"></i></button></div></header>
+        <section class="section"><article class="card range-card"><div class="tabs" id="rangeTabs" style="padding:0 0 10px"><button class="chip active" data-range="today">오늘</button><button class="chip" data-range="week">이번주</button><button class="chip" data-range="month">이번달</button></div></article></section>
+        <section class="section"><article class="card chart-card info-chart"><div class="chart-head"><div><h2 class="section-title"><i class="ti ti-chart-bar"></i> AI 혼잡도 차트</h2><p id="chartSubText">오늘 · 06:00~18:00 · 1시간 단위 · 과거 판매 데이터 기반</p></div></div><div id="infoChart" class="bar-chart"></div><div class="chart-analysis"><div class="bot"><i class="ti ti-robot"></i></div><div><b>AI 분석 요약</b><p id="chartInsight">11:00~12:00 사이 혼잡도가 높고, 13:00 이후부터 여유로운 편입니다.</p></div></div><div class="legend"><span><i style="background:#9fe1cb"></i>0~25 여유</span><span><i style="background:#EF9F27"></i>26~50 보통</span><span><i style="background:#E24B4A"></i>76~100 매우붐빔</span><span><i style="background:#085041"></i>현재 시간대</span></div></article></section>
+        <section class="section"><article class="card alert-card"><div><h3><i class="ti ti-bell" style="color:var(--primary)"></i> 혼잡 알림 설정</h3><p>추천 시간 또는 혼잡 완화 시 알림을 받습니다.</p></div><button class="switch on" id="alarmSwitch" aria-label="알림 설정"></button></article></section>
+        <section class="section"><article class="card pad"><h2 class="section-title"><i class="ti ti-info-circle"></i> 학생식당 정보</h2><div class="info-list"><div class="info-row"><span>학교</span><b>강원대학교 삼척캠퍼스</b></div><div class="info-row"><span>위치</span><b>5공학관 1층</b></div><div class="info-row"><span>운영시간</span><b>06:00~18:00</b></div><div class="info-row"><span>브레이크타임</span><b>15:00~16:00</b></div><div class="info-row"><span>픽업방식</span><b>셀프 픽업</b></div></div></article></section>
+      </section>
+
+      <section class="page admin-page" id="adminPage">
+        <header class="hero admin-hero"><div class="topbar"><div><div class="logo">관리자 대시보드</div><div class="sub">주문 · 혼잡도 · 메뉴 판매 현황</div></div><button class="icon-btn ripple" data-go="home"><i class="ti ti-home"></i></button></div><div class="hello"><b>운영자용 실시간 현황</b><p>학생 앱의 주문과 AI 혼잡도 예측을 한 화면에서 확인합니다.</p></div></header>
+        <section class="section"><article class="card admin-card dev-card">
+          <div class="dev-head"><div><b><i class="ti ti-device-desktop-analytics"></i> 개발자 시연 모드</b><p>공모전 발표 중 운영시간과 관계없이 혼잡도 상태를 즉시 보여줄 수 있습니다.</p></div><span class="dev-live" id="demoModeLabel">실시간</span></div>
+          <div class="demo-grid" id="demoModePanel">
+            <button class="demo-option active" data-demo="real">실시간</button>
+            <button class="demo-option low" data-demo="low">여유</button>
+            <button class="demo-option mid" data-demo="normal">보통</button>
+            <button class="demo-option high" data-demo="crowded">혼잡</button>
+            <button class="demo-option peak" data-demo="peak">매우붐빔</button>
+          </div>
+          <div class="demo-note" id="demoModeNote"><b>실시간 모드</b> · 현재 시간, 운영시간, 과거 판매 데이터, 날씨 데이터를 기준으로 AI 혼잡도를 계산합니다.</div>
+        </article></section>
+        <div class="admin-summary">
+          <article class="admin-kpi"><small><i class="ti ti-receipt"></i> 오늘 주문</small><b id="adminOrderCount">--건</b><em>모바일 사전주문 기준</em></article>
+          <article class="admin-kpi"><small><i class="ti ti-users"></i> 픽업 대기</small><b id="adminWaiting">--명</b><em>결제 후 픽업 대기</em></article>
+          <article class="admin-kpi"><small><i class="ti ti-cash"></i> 예상 매출</small><b id="adminRevenue">--원</b><em>시연 데이터 기반</em></article>
+          <article class="admin-kpi"><small><i class="ti ti-brain"></i> AI 혼잡도</small><b id="adminScore">--점</b><em id="adminLevel">분석 대기</em></article>
+        </div>
+        <section class="section"><article class="card admin-card"><h3><i class="ti ti-list-check"></i> 현재 주문 큐</h3><div class="admin-queue" id="adminQueue"></div></article></section>
+        <section class="section"><article class="card admin-card"><h3><i class="ti ti-trophy"></i> 메뉴 판매 순위</h3><div class="rank-list" id="adminMenuRank"></div></article></section>
+        <section class="section"><article class="card admin-card forecast-card" id="monthlyForecastCard">
+          <div class="forecast-top"><div class="forecast-title"><b><i class="ti ti-calendar-stats"></i> AI 다음달 식수 예측</b><p>과거 판매 데이터와 학사일정을 기반으로 운영량을 추천합니다.</p></div><span class="forecast-badge" id="forecastMonth">다음달</span></div>
+          <div class="forecast-main"><div class="forecast-total"><small>예상 총 식수</small><b id="forecastTotal">--명</b><em id="forecastCompare">전월 대비 --</em></div><div class="forecast-side"><div class="forecast-mini"><small>일평균 식수</small><b id="forecastDaily">--명</b></div><div class="forecast-mini"><small>피크 시간</small><b id="forecastPeak">--</b></div></div></div>
+          <div class="forecast-recipe" id="forecastMenuPlan"></div>
+          <div class="forecast-note"><b><i class="ti ti-bulb"></i>AI 준비량 추천</b><span id="forecastAdvice">데이터를 분석하는 중입니다.</span></div>
+        </article></section>
+        <section class="section"><article class="card admin-card"><div class="admin-ai-box"><i class="ti ti-robot"></i><div><b>AI 운영 제안</b><p id="adminInsight">AI 혼잡도 분석 결과를 불러오는 중입니다.</p></div></div></article></section>
+      </section>
+    </main>
+    <nav class="nav"><button class="active ripple" data-go="home"><i class="ti ti-home"></i>홈</button><button class="ripple" data-go="order"><i class="ti ti-tools-kitchen-2"></i>주문</button><button class="ripple" data-go="history"><i class="ti ti-receipt"></i>내역</button><button class="ripple" data-go="info"><i class="ti ti-building-store"></i>정보</button><button class="ripple" data-go="admin"><i class="ti ti-dashboard"></i>관리자</button></nav>
+    <div class="toast" id="toast"></div>
+    <div class="modal-backdrop" id="qrModal"><div class="modal"><h2>밥줘 앱 QR</h2><p style="color:var(--muted);font-size:13px;margin-top:4px">스마트폰으로 접속해 시연할 수 있습니다.</p><div id="qrCode"></div><div class="copy-url" id="copyUrl"></div><button class="primary-btn ripple" id="copyBtn">URL 복사</button><button class="close-btn ripple" id="closeModal">닫기</button></div></div>
+  </div>
+<script>
+'use strict';
+
+/* =========================================================
+   밥줘 AI 스마트 학식 주문 서비스 - 단일 HTML 시연 버전
+   ---------------------------------------------------------
+   목적
+   - 강원대학교 삼척캠퍼스 학생식당의 혼잡도를 AI처럼 예측하고,
+     학생에게는 추천 방문시간/사전주문/픽업 상태를 제공한다.
+   - 관리자에게는 현재 주문 현황, 다음달 식수 예측, 운영 추천을 제공한다.
+
+   데이터 활용
+   - 2024·2025 키오스크 시간대별 판매 데이터에서 점심 피크 패턴을 추출했다.
+   - 현재 시간, 요일, 운영시간, 시험기간, 방학 여부, 날씨 데이터를 함께 반영한다.
+
+   구현 원칙
+   - 공모전 시연 안정성을 위해 로컬 AI 예측을 기본값으로 사용한다.
+   - 실제 운영 시에는 Firebase Functions가 OpenAI API를 호출하고,
+     브라우저는 JSON 결과만 받아 화면에 렌더링하도록 확장한다.
+========================================================= */
+const APP_URL='https://hajim26.github.io/Bapjwo/';
+
+/* 서비스 기본 설정: 운영시간, 브레이크타임, 좌석 수, 평균 조리시간 등
+   혼잡도 계산과 주문/픽업 시뮬레이션에서 공통으로 사용하는 값이다. */
+const CONFIG={restaurant:{university:'강원대학교 삼척캠퍼스',name:'학생식당',location:'5공학관 1층',open:'06:00',close:'18:00',break:'15:00~16:00',pickup:'셀프 픽업',seats:300,avgDailyUsers:500},seats:300,openDays:[1,2,3,4,5],openHour:6,closeHour:18,breakStart:15,breakEnd:16,weather:{latitude:37.44,longitude:129.16},simulation:{steps:['접수완료','조리중','픽업완료'],averageCookingTime:8}};
+/* 메뉴 데이터: 현재 시연 버전은 실제 식당 운영 메뉴에 맞춰
+   덮밥, 백반, 1000원의 아침밥 3개로 구성했다. */
+const MENUS=[{id:1,name:'덮밥',price:5000,category:'덮밥',emoji:'🍛',desc:'든든한 한 그릇 메뉴',popular:true},{id:2,name:'백반',price:6000,category:'백반',emoji:'🥘',desc:'오늘의 반찬과 국 구성',popular:true},{id:3,name:'1000의 아침밥',price:1000,category:'1000의 아침밥',emoji:'🍚',time:'08:00~09:00',desc:'아침 시간 한정 메뉴'}];
+/* 과거 키오스크 판매 데이터
+   - 원본 파일은 연도별/키오스크별 판매량 데이터였고,
+     앱 내부에서는 시간대별 피크 패턴을 계산하기 쉬운 형태로 정리했다.
+   - 11~12시 판매 비중이 높기 때문에 점심 피크 혼잡도 가중치에 사용한다. */
+const SALES_2024={'08':10034,'09':5378,'10':2131,'11':22525,'12':24932,'13':3875,'14':720,'15':248,'16':1805,'17':4157,'18':2,'20':1};
+const SALES_2025={'07':137,'08':11028,'09':7901,'10':1458,'11':20855,'12':21076,'13':2388,'14':611,'15':243,'16':1406,'17':2760,'18':56};
+/* 학사일정 데이터: 시험기간/축제/방학 여부를 판단해
+   특정 기간의 혼잡도 보정값으로 사용한다. */
+const ACADEMIC=[{date:'2026-03-02',event:'개강'},{date:'2026-04-20',event:'중간고사'},{date:'2026-06-16',event:'기말고사'},{date:'2026-05-20',event:'축제'},{date:'2026-10-03',event:'체육대회'}];
+
+/* 개발자 시연 모드
+   - 실제 시간이 운영시간이 아니어도 여유/보통/혼잡/매우붐빔 상태를 즉시 보여준다.
+   - 공모전 발표에서 다양한 혼잡 상황을 빠르게 시연하기 위한 기능이다. */
+const DEMO_SCENARIOS={
+  real:{label:'실시간 모드',note:'현재 시간, 운영시간, 과거 판매 데이터, 날씨 데이터를 기준으로 AI 혼잡도를 계산합니다.'},
+  low:{label:'여유 시연',hour:14,score:18,waiting_count:1,waiting_minutes:2,remaining_seats:248,recommended_time:'지금 방문 추천',confidence:89,reason:'점심 피크가 지난 시간대로 픽업 대기와 좌석 점유가 낮은 상황을 시연합니다.'},
+  normal:{label:'보통 시연',hour:10,score:43,waiting_count:8,waiting_minutes:6,remaining_seats:196,recommended_time:'12:45~13:05',confidence:87,reason:'점심 피크 전 주문이 서서히 증가하는 상황을 시연합니다.'},
+  crowded:{label:'혼잡 시연',hour:11,score:68,waiting_count:27,waiting_minutes:15,remaining_seats:82,recommended_time:'13:10~13:30',confidence:90,reason:'11시 이후 주문이 몰리며 픽업 대기와 좌석 점유가 증가하는 상황을 시연합니다.'},
+  peak:{label:'매우붐빔 시연',hour:12,score:94,waiting_count:48,waiting_minutes:23,remaining_seats:27,recommended_time:'13:20~13:40',confidence:92,reason:'과거 판매 데이터에서 11~12시 주문 집중도가 가장 높게 나타나는 피크 상황을 시연합니다.'}
+};
+
+/* =========================================================
+   Firebase / OpenAI 연동 준비 영역
+   - 현재 index.html은 공모전 시연 안정성을 위해 로컬 AI 예측을 기본값으로 사용한다.
+   - 실제 배포 시 REMOTE_SERVICES.ai 또는 REMOTE_SERVICES.firestore를 true로 바꾸고
+     Firebase Hosting + Functions + Firestore를 연결하면 된다.
+   - OpenAI API Key는 절대 브라우저 코드에 넣지 않는다.
+     Firebase Functions 환경변수에만 저장한다: OPENAI_API_KEY=YOUR_OPENAI_API_KEY
+========================================================= */
+const REMOTE_SERVICES={ai:false,firestore:false,auth:false};
+const FIREBASE_CONFIG={
+  apiKey:'YOUR_FIREBASE_API_KEY',
+  authDomain:'bapjwo.firebaseapp.com',
+  projectId:'bapjwo',
+  storageBucket:'bapjwo.appspot.com',
+  messagingSenderId:'YOUR_MESSAGING_SENDER_ID',
+  appId:'YOUR_FIREBASE_APP_ID'
+};
+const API_ENDPOINTS={
+  predictCongestion:'/api/predictCongestion',
+  createOrder:'/api/orders',
+  updateOrderStatus:'/api/orders/status'
+};
+/* Firestore 컬렉션 설계
+   orders            : 학생 주문 데이터
+   ai_predictions    : AI 혼잡도 예측 로그
+   users             : 학생/관리자 사용자 정보
+   menus             : 메뉴/가격/품절 정보
+   monthly_forecasts : 월별 식수 예측 및 운영 추천 기록
+*/
+const FIRESTORE_COLLECTIONS={
+  orders:'orders',
+  aiPredictions:'ai_predictions',
+  users:'users',
+  menus:'menus',
+  monthlyForecasts:'monthly_forecasts'
+};
+/* AI 응답 JSON Schema
+   - Firebase Functions 또는 OpenAI가 반환해야 하는 형태를 명확히 정의한다.
+   - UI는 이 구조만 믿고 화면을 갱신하므로, 실제 서버 연동 시에도 같은 형식을 유지하면 된다. */
+const AI_RESPONSE_SCHEMA={
+  current:{score:'number 0~100',level:'여유|보통|혼잡|매우붐빔',waiting_count:'number',waiting_minutes:'number',remaining_seats:'number'},
+  recommended_time:'string 예: 13:20~13:40',
+  confidence:'number 0~100',
+  reason:'string',
+  last_updated:'ISO datetime string',
+  hourly:[{time:'HH:00',score:'number 0~100'}]
+};
+/* Firebase Functions 예시 구조
+exports.predictCongestion = onRequest(async (req, res) => {
+  const input = req.body;
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const response = await openai.responses.create({
+    model: 'gpt-4.1-mini',
+    input: [
+      { role: 'system', content: '학생식당 혼잡도 예측 AI입니다. 반드시 JSON만 반환하세요.' },
+      { role: 'user', content: JSON.stringify(input) }
+    ],
+    text: { format: { type: 'json_object' } }
+  });
+  res.json(JSON.parse(response.output_text));
+});
+*/
+
+/* 앱 상태 저장소
+   - 별도 프레임워크 없이 단일 HTML에서 동작하기 때문에 전역 state 객체로
+     현재 화면, 장바구니, 주문내역, AI 예측 결과, 날씨, 시연모드를 관리한다. */
+const state={page:'home',cart:[],orders:[],ai:null,weather:null,range:'today',demoMode:'real'};
+const $=q=>document.querySelector(q); const $$=q=>Array.from(document.querySelectorAll(q));
+function on(sel,event,handler){const el=typeof sel==='string'?$(sel):sel;if(el)el.addEventListener(event,handler)}
+function text(sel,val){const el=$(sel);if(el)el.textContent=val}
+function html(sel,val){const el=$(sel);if(el)el.innerHTML=val}
+function cls(sel,fn){const el=$(sel);if(el)fn(el)}
+function levelFromScore(score){if(score<=25)return{level:'여유',cls:'good',emoji:'😊'};if(score<=50)return{level:'보통',cls:'good',emoji:'🙂'};if(score<=75)return{level:'혼잡',cls:'mid',emoji:'😯'};return{level:'매우붐빔',cls:'bad',emoji:'🔥'}}
+function clamp(n,min,max){return Math.max(min,Math.min(max,n))} function won(n){return n.toLocaleString('ko-KR')+'원'} function pad(n){return String(n).padStart(2,'0')}
+function showToast(msg){const t=$('#toast');if(!t)return; t.textContent=msg;t.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.remove('show'),2200)}
+function setLoading(v){const btn=$('#refreshBtn'); if(btn)btn.classList.toggle('loading',v); if(v){['#levelText','#scoreText','#waitCount','#waitMin','#recTime','#confidenceText','#homeWaiting','#remainSeats'].forEach(sel=>{const el=$(sel); if(el)el.classList.add('skeleton')})}else{$$('.skeleton').forEach(el=>el.classList.remove('skeleton'))}}
+/* 날씨 데이터 수집
+   - Open-Meteo API를 사용한다.
+   - 네트워크 실패/학교 PC 차단 상황에서도 시연이 멈추지 않도록 기본 날씨값으로 대체한다. */
+async function fetchWeather(){
+  const fallback={temperature_2m:24,precipitation:0,weather_code:3,fallback:true};
+  try{
+    if(!navigator.onLine){state.weather=fallback;return fallback}
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),2600);
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${CONFIG.weather.latitude}&longitude=${CONFIG.weather.longitude}&current=temperature_2m,precipitation,weather_code&timezone=Asia%2FSeoul`;
+    const r=await fetch(url,{signal:controller.signal});
+    clearTimeout(timer);
+    if(!r.ok)throw new Error('weather failed');
+    const j=await r.json();
+    state.weather=j.current||fallback;
+    return state.weather;
+  }catch(e){
+    console.warn('[밥줘] 날씨 API 실패 → 기본 날씨 데이터 사용:',e.message);
+    state.weather=fallback;
+    return fallback;
+  }
+}
+/* AI 예측 호출 진입점
+   - REMOTE_SERVICES.ai=false: 로컬 계산식 사용
+   - REMOTE_SERVICES.ai=true : Firebase Functions(/api/predictCongestion) 호출
+   - 서버 실패 시 localAIPredict()로 자동 fallback 된다. */
+async function callAIPrediction(){
+  if(state.demoMode!=='real') return demoAIPredict();
+  const payload=buildAIPayload();
+  if(!REMOTE_SERVICES.ai) return localAIPredict();
+  try{
+    const res=await fetch(API_ENDPOINTS.predictCongestion,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(!res.ok) throw new Error('Firebase Functions 응답 오류');
+    const json=await res.json();
+    return normalizeAIPrediction(json);
+  }catch(e){
+    console.warn('[밥줘] 원격 AI 호출 실패 → 로컬 AI 예측 사용:',e.message);
+    return localAIPredict();
+  }
+}
+/* AI 입력 데이터 구성
+   브라우저가 서버로 보낼 수 있는 모든 예측 재료를 하나의 JSON으로 묶는다.
+   현재 시각, 요일, 주말 여부, 날씨, 식당 정보, 학사일정, 과거 판매 데이터,
+   최근 주문량 추정, 시험기간/방학 여부를 포함한다. */
+function buildAIPayload(){const now=new Date();return{app:'밥줘',app_url:APP_URL,current_time:now.toISOString(),weekday:now.getDay(),is_weekend:[0,6].includes(now.getDay()),weather:state.weather,restaurant:CONFIG.restaurant,academic:ACADEMIC,historical_sales:{'2024':SALES_2024,'2025':SALES_2025},recent_orders:estimateRecentOrders(),exam_week:isExamWeek(now),vacation:isVacation(now),schema:AI_RESPONSE_SCHEMA}}
+function normalizeAIPrediction(json){
+  if(!json||!json.current||typeof json.current.score!=='number'||!Array.isArray(json.hourly)) throw new Error('AI JSON Schema 불일치');
+  json.current.score=clamp(Math.round(json.current.score),0,100);
+  json.current.waiting_count=Math.max(0,Math.round(json.current.waiting_count||0));
+  json.current.waiting_minutes=Math.max(0,Math.round(json.current.waiting_minutes||0));
+  json.current.remaining_seats=Math.max(0,Math.round(json.current.remaining_seats??CONFIG.seats));
+  json.confidence=clamp(Math.round(json.confidence||85),0,100);
+  json.last_updated=json.last_updated||new Date().toISOString();
+  json.hourly=json.hourly.map(x=>({time:x.time,score:clamp(Math.round(x.score||0),0,100)}));
+  return json;
+}
+function isExamWeek(d){const m=d.getMonth()+1, day=d.getDate();return (m===4&&day>=17&&day<=27)||(m===6&&day>=13&&day<=23)} function isVacation(d){const m=d.getMonth()+1;return [1,2,7,8].includes(m)}
+function estimateRecentOrders(){const h=pad(new Date().getHours());const base=(SALES_2025[h]||500)/365;return Math.round(base*(.8+Math.random()*.4))}
+function isRestaurantOpen(d=new Date()){const h=d.getHours()+d.getMinutes()/60;const weekdayOpen=CONFIG.openDays.includes(d.getDay());const inHours=h>=CONFIG.openHour&&h<CONFIG.closeHour;const inBreak=h>=CONFIG.breakStart&&h<CONFIG.breakEnd;return weekdayOpen&&inHours&&!inBreak}
+function nextOpenText(d=new Date()){const day=nextBusinessDate(d);return `${day.label} 13:30~13:50`}
+function nextBusinessDate(d=new Date()){for(let i=0;i<8;i++){const day=new Date(d);day.setDate(d.getDate()+i);const isOpenDay=CONFIG.openDays.includes(day.getDay());const nowHour=day.getHours()+day.getMinutes()/60;const canUseToday=i===0&&isOpenDay&&nowHour<13.5; if(isOpenDay&&(i>0||canUseToday))return{date:day,label:i===0?'오늘':'다음 운영일'}}return{date:new Date(d.getTime()+86400000),label:'다음 운영일'}}
+function bestLowCrowdReason(){return '과거 판매 데이터에서 11~12시는 주문이 집중되고, 13:30 이후는 점심 피크가 줄어드는 패턴이 있어 이 시간대를 추천합니다.'}
+
+function demoAIPredict(){
+  const scenario=DEMO_SCENARIOS[state.demoMode]||DEMO_SCENARIOS.real;
+  if(state.demoMode==='real') return localAIPredict();
+  const lv=levelFromScore(scenario.score);
+  const hourly=buildHourlyFromSales().map(x=>{
+    const h=Number(x.time.slice(0,2));
+    let adjusted=x.score;
+    if(h===scenario.hour) adjusted=scenario.score;
+    if(state.demoMode==='peak'&&h>=11&&h<=12) adjusted=clamp(adjusted+18,5,98);
+    if(state.demoMode==='crowded'&&h>=11&&h<=13) adjusted=clamp(adjusted+10,5,92);
+    if(state.demoMode==='low'&&h>=11&&h<=13) adjusted=clamp(adjusted-26,5,58);
+    return {...x,score:clamp(Math.round(adjusted),5,98),now:h===scenario.hour};
+  });
+  return{
+    current:{score:scenario.score,level:lv.level,waiting_count:scenario.waiting_count,waiting_minutes:scenario.waiting_minutes,dining_users:CONFIG.seats-scenario.remaining_seats,remaining_seats:scenario.remaining_seats,demo:true},
+    recommended_time:scenario.recommended_time,
+    confidence:scenario.confidence,
+    reason:scenario.reason,
+    last_updated:new Date().toISOString(),
+    hourly
+  };
+}
+function setDemoMode(mode){
+  state.demoMode=DEMO_SCENARIOS[mode]?mode:'real';
+  renderDemoControls();
+  refreshAI(true);
+}
+function renderDemoControls(){
+  const mode=state.demoMode||'real';
+  const scenario=DEMO_SCENARIOS[mode]||DEMO_SCENARIOS.real;
+  $$('#demoModePanel .demo-option').forEach(btn=>btn.classList.toggle('active',btn.dataset.demo===mode));
+  if($('#demoModeLabel')) $('#demoModeLabel').textContent=scenario.label.replace(' 시연','');
+  if($('#demoModeNote')) $('#demoModeNote').innerHTML=`<b>${scenario.label}</b> · ${mode==='real'?scenario.note:scenario.reason}`;
+}
+/* 로컬 AI 예측 엔진
+   - 실제 머신러닝 모델 대신, 확보한 판매 데이터와 운영 규칙을 조합한 휴리스틱 모델이다.
+   - 시간대별 과거 판매량을 기반 점수로 사용하고, 점심 피크/시험기간/방학/날씨를 가중치로 반영한다.
+   - 운영시간이 아니면 혼잡도 대신 '운영안함'과 다음 운영 추천시간을 표시한다. */
+function localAIPredict(){const now=new Date(), hour=now.getHours(), min=now.getMinutes();if(!isRestaurantOpen(now)){const hourly=makeHourly(42);const best=nextOpenText(now);return{current:{score:0,level:'운영안함',waiting_count:0,waiting_minutes:0,closed:true,dining_users:0,remaining_seats:CONFIG.seats},recommended_time:best,confidence:94,reason:bestLowCrowdReason(),last_updated:now.toISOString(),hourly}}const h=pad(hour);const y24=SALES_2024[h]||0,y25=SALES_2025[h]||0;const avgHour=((y24+y25)/2)/365;let score=18+avgHour*2.25;if(hour===11)score+=28;if(hour===12)score+=30;if(hour===13)score+=8;if(hour===8)score+=10;if(hour===17)score+=5;if([0,6].includes(now.getDay()))score-=22;if(isExamWeek(now))score+=10;if(isVacation(now))score-=18;if(state.weather){const t=state.weather.temperature_2m??24,p=state.weather.precipitation??0;if(p>0)score+=7;if(t>=30||t<=0)score+=4}score=clamp(Math.round(score),8,96);const waiting_count=Math.max(0,Math.round((score/100)*55-12));const waiting_minutes=Math.max(1,Math.round(waiting_count*.55+score/10));const dining_users=clamp(Math.round((score/100)*260+waiting_count*.35),0,CONFIG.seats);const remaining_seats=Math.max(0,CONFIG.seats-dining_users);const recommended=recommendTime(hour,min,score);const hourly=makeHourly(score);const lev=levelFromScore(score);return{current:{score,level:lev.level,waiting_count,waiting_minutes,dining_users,remaining_seats},recommended_time:recommended.time,confidence:recommended.confidence,reason:recommended.reason,last_updated:now.toISOString(),hourly}}
+function timeRangeFromNow(minutesAhead=0,duration=20){const d=new Date();d.setMinutes(d.getMinutes()+minutesAhead);const rounded=Math.ceil(d.getMinutes()/15)*15;d.setMinutes(rounded,0,0);const end=new Date(d.getTime()+duration*60000);return `${pad(d.getHours())}:${pad(d.getMinutes())}~${pad(end.getHours())}:${pad(end.getMinutes())}`}
+/* 추천 방문시간 계산
+   - 혼잡도가 높을수록 13시 이후 피크가 빠진 시간대로 추천한다.
+   - 혼잡도가 낮으면 현재 또는 가까운 시간대를 추천한다.
+   - 신뢰도는 과거 데이터 패턴이 강한 시간대일수록 높게 표시한다. */
+function recommendTime(hour,min,score){if(score>=70)return{time:'13:20~13:40',confidence:92,reason:'11~12시 피크 이후 주문량이 빠르게 감소하는 패턴이 있어 13시 20분 이후 방문을 추천합니다.'};if(score>=45)return{time:'12:45~13:05',confidence:88,reason:'현재는 보통 수준이지만 점심 피크가 남아 있어 15~30분 뒤 방문하면 대기시간이 줄어듭니다.'};return{time:timeRangeFromNow(0,20),confidence:84,reason:'현재 혼잡도가 낮고 좌석 여유가 충분해 바로 방문해도 괜찮습니다.'}}
+/* 시간대별 혼잡도 차트 데이터 생성
+   - 운영시간 06:00~18:00을 1시간 단위로 나눈다.
+   - 과거 판매 데이터의 시간대별 평균값을 0~100 혼잡도 점수로 정규화한다.
+   - 식당정보 화면의 AI 혼잡도 차트와 관리자 데이터에 함께 사용한다. */
+function buildHourlyFromSales(){
+  const hours=[];
+  for(let h=CONFIG.openHour;h<=CONFIG.closeHour;h++) hours.push(`${pad(h)}:00`);
+  const salesValues=hours.map(t=>{
+    const key=t.slice(0,2);
+    return ((SALES_2024[key]||0)*0.45)+((SALES_2025[key]||0)*0.55);
+  });
+  const max=Math.max(...salesValues,1);
+  const now=new Date();
+  return hours.map((time,i)=>{
+    const h=Number(time.slice(0,2));
+    let score=Math.round((salesValues[i]/max)*94);
+    score=clamp(score,5,96);
+    if(h>=CONFIG.breakStart && h<CONFIG.breakEnd) score=6;
+    if(isExamWeek(now) && h>=11 && h<=13) score+=6;
+    if(isVacation(now)) score-=18;
+    if(state.weather?.precipitation>0 && h>=11 && h<=13) score+=4;
+    return {time,score:clamp(Math.round(score),5,98),now:h===now.getHours()};
+  });
+}
+function makeHourly(currentScore){return buildHourlyFromSales()}
+async function refreshAI(manual=false){
+  setLoading(true);
+  try{
+    await fetchWeather();
+    const data=await callAIPrediction();
+    state.ai=normalizeAIPrediction(data);
+  }catch(e){
+    console.warn('[밥줘] AI 렌더링 오류 → 로컬 예측으로 복구:',e.message);
+    state.ai=localAIPredict();
+  }finally{
+    renderAI();
+    setLoading(false);
+    if(manual)showToast('AI 혼잡도 분석이 갱신됐어요');
+  }
+}
+function renderAI(){
+  const d=state.ai||localAIPredict();
+  const isClosed=!!d.current.closed;
+  const lv=isClosed?{level:'운영안함',emoji:'🌙',cls:'closed'}:levelFromScore(d.current.score);
+  cls('#levelText',el=>{el.textContent=isClosed?'운영안함':`${lv.level} ${lv.emoji}`;el.className=`status ${lv.cls}`});
+  text('#scoreText',isClosed?'OFF':d.current.score);
+  cls('#scoreRing',el=>{el.style.background=isClosed?'conic-gradient(#cfd8d3 360deg,#e8efe9 0deg)':`conic-gradient(${lv.cls==='bad'?'var(--danger)':lv.cls==='mid'?'var(--warn)':'var(--primary)'} ${d.current.score*3.6}deg,#e8efe9 0deg)`});
+  text('#waitCount',d.current.waiting_count+'명');
+  text('#waitMin',isClosed?'운영 전':d.current.waiting_minutes+'분');
+  text('#homeWaiting',d.current.waiting_count+'명');
+  text('#remainSeats',(d.current.remaining_seats??CONFIG.seats)+'석');
+  text('#openStateText',state.demoMode!=='real'?'시연모드 · 운영중':(isClosed?'운영안함':'운영중'));
+  text('#recTime',d.recommended_time);
+  cls('#confidenceBar',el=>{el.style.width=d.confidence+'%'});
+  text('#confidenceText','신뢰도 '+d.confidence+'%');
+  text('#lastUpdated','마지막 업데이트 '+new Date(d.last_updated).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}));
+  renderChart('#infoChart',d.hourly);
+  updateChartSummary(d.hourly,'오늘');
+  renderAdmin();
+}
+function renderChart(sel,data){
+  const box=$(sel);
+  const nowH=new Date().getHours();
+  const bars=data.map(x=>{
+    const baseCls=x.score>=76?'high':x.score>=26?'mid':'low';
+    const hourNum=parseInt(x.time,10);
+    const demoActive=state.demoMode&&state.demoMode!=='real';
+    const nowCls=(x.now||(!demoActive&&hourNum===nowH))?' now':'';
+    const label=x.time.replace(':00','시');
+    const height=Math.max(5,Math.min(100,x.score));
+    return `<div class="bar-row"><div class="bar-track"><div class="bar ${baseCls}${nowCls}" title="${x.time} · 혼잡도 ${x.score}점" aria-label="${x.time} 혼잡도 ${x.score}점" style="height:${height}%"></div></div><div class="bar-time">${label}</div></div>`;
+  }).join('');
+  box.innerHTML=`<div class="chart-badge"><i class="ti ti-wave-sine"></i> 시간대별 혼잡도 점수 (0~100)</div><div class="chart-plot"><div class="y-axis"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div><div class="bars-area">${bars}</div></div>`;
+}
+function updateChartSummary(data,label='오늘'){if(!data||!data.length)return;const peak=[...data].sort((a,b)=>b.score-a.score)[0];const low=[...data].sort((a,b)=>a.score-b.score)[0];const peakEnd=String((parseInt(peak.time,10)+1)).padStart(2,'0')+':00';const lowEnd=String((parseInt(low.time,10)+1)).padStart(2,'0')+':00';if($('#chartInsight'))$('#chartInsight').textContent=`${peak.time}~${peakEnd} 사이 혼잡도가 가장 높고, ${low.time}~${lowEnd} 시간대가 가장 여유로운 편입니다.`;if($('#chartSubText'))$('#chartSubText').textContent=`${label} · 06:00~18:00 · 1시간 단위 · 과거 판매 데이터 기반`}
+function renderDates(){const box=$('#dateTabs');if(!box)return;const today=new Date();box.innerHTML='';['오늘','내일','모레','금요일'].forEach((label,i)=>{const d=new Date(today);d.setDate(today.getDate()+i);box.insertAdjacentHTML('beforeend',`<button class="chip ${i===0?'active':''}">${label} ${d.getMonth()+1}/${d.getDate()}</button>`)})}
+function renderCats(){const cats=['전체',...new Set(MENUS.map(m=>m.category))];$('#catTabs').innerHTML=cats.map((c,i)=>`<button class="chip ${i===0?'active':''}" data-cat="${c}">${c}</button>`).join('')}
+function renderMenus(cat='전체'){const list=$('#menuList');const items=cat==='전체'?MENUS:MENUS.filter(m=>m.category===cat);list.innerHTML=items.map(m=>`<article class="card menu"><div class="food">${m.emoji}</div><div style="flex:1"><h3>${m.name} ${m.popular?'<span class="tag">인기</span>':''}</h3><p>${m.desc}${m.time?' · '+m.time:''}</p><div class="menu-price">${won(m.price)}</div></div><button class="add ripple" data-add="${m.id}"><i class="ti ti-plus"></i></button></article>`).join('')}
+function addCart(id){const m=MENUS.find(x=>x.id===id);state.cart.push(m);renderCart();showToast(`${m.name} 장바구니에 담았어요`)}
+function renderCart(){const count=state.cart.length,total=state.cart.reduce((s,m)=>s+m.price,0);$('#cartPanel').classList.toggle('show',count>0);$('#cartCount').textContent=count+'개 담김';$('#cartTotal').textContent=won(total)}
+
+function serializeOrder(order){return{orderId:String(order.id),items:order.items.map(m=>({id:m.id,name:m.name,price:m.price,category:m.category})),totalPrice:order.total,status:CONFIG.simulation.steps[order.status],pickupTime:order.pickup.toISOString(),createdAt:order.created.toISOString(),userId:'demo-user',source:'bapjwo-webapp'}}
+/* 주문 저장 구조
+   - 시연 버전에서는 콘솔 로그만 남기고 화면 상태로 주문을 관리한다.
+   - REMOTE_SERVICES.firestore=true로 변경하면 /api/orders를 통해 Firestore 저장 구조로 확장된다. */
+async function saveOrderToFirestore(order){
+  const payload=serializeOrder(order);
+  if(!REMOTE_SERVICES.firestore){
+    console.info('[밥줘] Firestore 데모 모드: 실제 저장 없이 로컬 주문으로 시연합니다.',payload);
+    return {ok:true,mode:'local-demo'};
+  }
+  try{
+    const res=await fetch(API_ENDPOINTS.createOrder,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(!res.ok) throw new Error('주문 저장 실패');
+    return await res.json();
+  }catch(e){
+    console.warn('[밥줘] Firestore 주문 저장 실패 → 로컬 주문 유지:',e.message);
+    return {ok:false,mode:'fallback-local'};
+  }
+}
+/* 주문 상태 동기화 구조
+   - 접수완료 → 조리중 → 픽업완료 상태가 변경될 때 서버 DB에도 반영할 수 있는 자리다.
+   - 실제 운영에서는 관리자 화면과 학생 화면이 같은 주문 상태를 공유하게 된다. */
+async function syncOrderStatus(order){
+  if(!REMOTE_SERVICES.firestore) return;
+  try{await fetch(API_ENDPOINTS.updateOrderStatus,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({orderId:String(order.id),status:CONFIG.simulation.steps[order.status],updatedAt:new Date().toISOString()})})}catch(e){console.warn('[밥줘] 주문 상태 동기화 실패:',e.message)}
+}
+async function placeOrder(){if(!state.cart.length){showToast('먼저 메뉴를 담아주세요');return}const now=new Date();const pickup=new Date(now.getTime()+CONFIG.simulation.averageCookingTime*60000);const order={id:Date.now(),items:[...state.cart],status:0,created:now,pickup,total:state.cart.reduce((s,m)=>s+m.price,0)};state.orders.unshift(order);state.cart=[];renderCart();renderOrders();go('history');showToast('주문이 접수됐어요');await saveOrderToFirestore(order);simulateOrder(order.id)}
+function simulateOrder(id){setTimeout(()=>updateOrder(id,1),3000);setTimeout(()=>updateOrder(id,2),7000)} function updateOrder(id,status){const o=state.orders.find(x=>x.id===id);if(o){o.status=status;renderOrders();syncOrderStatus(o);showToast(CONFIG.simulation.steps[status]+' 상태로 변경됐어요')}}
+function renderOrders(){const box=$('#orders');setTimeout(renderAdmin,0);if(!state.orders.length){box.innerHTML='<div class="empty"><i class="ti ti-receipt-off"></i><b>아직 주문내역이 없어요</b><p>메뉴를 주문하면 접수부터 픽업완료까지 진행 상태가 여기에 표시됩니다.</p><button class="primary-btn ripple" data-go="order">메뉴 주문하러 가기</button></div>';return}box.innerHTML=state.orders.map(o=>{const statusClass=o.status===1?'cooking':o.status===2?'done':'';const statusText=CONFIG.simulation.steps[o.status];const pickupText=o.status===2?'픽업완료':o.pickup.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});const guide=o.status===0?'주문이 접수됐어요. 곧 조리를 시작합니다.':o.status===1?'주방에서 조리 중입니다. 픽업 알림을 확인하세요.':'픽업이 완료됐습니다. 맛있게 드세요!';return `<article class="card pad order-card"><div class="order-top"><div><div class="order-title">주문 #${String(o.id).slice(-5)}</div><p class="order-menu">${o.items.map(i=>i.name).join(', ')} · ${won(o.total)}</p></div><span class="tag ${statusClass}">${statusText}</span></div><div class="pickup-hero"><div><small>${o.status===2?'수령 상태':'픽업 예상시간'}</small><b>${pickupText}</b><p style="font-size:12px;color:var(--muted);margin-top:3px">${guide}</p></div><i class="ti ${o.status===2?'ti-circle-check':'ti-clock-hour-4'}"></i></div><div class="stepper">${CONFIG.simulation.steps.map((s,i)=>`<div class="step ${i<o.status?'done':i===o.status?'active':'none'}"><div class="dot"><i class="ti ${i<o.status?'ti-check':i===o.status?'ti-clock':'ti-circle'}"></i></div><div><b>${s}</b><p style="font-size:12px;color:var(--muted)">${i===0?'결제 및 주문 접수 확인':i===1?'평균 8분 내 조리 완료 예상':'QR 확인 후 셀프 픽업 완료'}</p></div></div>`).join('')}</div><div class="order-actions"><button class="ghost-btn ripple" onclick="openQR()"><i class="ti ti-qrcode"></i> 픽업 QR</button><button class="primary-btn ripple" onclick="simulateOrder(${o.id})">상태 시뮬레이션</button></div></article>`}).join('')}
+
+function renderAdmin(){
+  const ai=state.ai;
+  const score=ai?.current?.score??0;
+  const lv=ai?.current?.closed?{level:'운영안함'}:levelFromScore(score);
+  const orderBase=Math.round((SALES_2025['11']+SALES_2025['12'])/365);
+  const liveOrders=Math.max(state.orders.length, Math.round(orderBase*(score/100)*0.28));
+  const waiting=ai?.current?.waiting_count??0;
+  const avgTicket=4700;
+  const revenue=state.orders.length?state.orders.reduce((s,o)=>s+o.total,0)+(liveOrders-state.orders.length)*avgTicket:liveOrders*avgTicket;
+  const set=(id,val)=>{const el=$(id); if(el)el.textContent=val};
+  set('#adminOrderCount',liveOrders+'건');
+  set('#adminWaiting',waiting+'명');
+  set('#adminRevenue',won(Math.max(0,revenue)));
+  set('#adminScore',(ai?.current?.closed?'OFF':score+'점'));
+  set('#adminLevel',ai?.current?.closed?'현재 운영시간 아님':lv.level+' 단계');
+  renderAdminMiniChart();
+  renderAdminQueue();
+  renderAdminMenuRank();
+  renderMonthlyForecast();
+  const insight=$('#adminInsight');
+  if(insight){
+    if(ai?.current?.closed) insight.textContent='현재는 운영시간이 아니므로 다음 운영일 13:30 이후를 추천 시간대로 표시합니다. 운영 중에는 픽업 대기와 혼잡도에 따라 실시간으로 안내가 변경됩니다.';
+    else if(score>=76) insight.textContent='점심 피크로 주문이 집중되고 있습니다. 사전주문 픽업 시간을 13:20 이후로 유도하면 대기열을 줄일 수 있습니다.';
+    else if(score>=51) insight.textContent='혼잡도가 높은 편입니다. 조리 완료 알림과 QR 픽업 안내를 강조해 식당 앞 대기 체류 시간을 줄이는 것이 좋습니다.';
+    else insight.textContent='현재는 비교적 안정적인 운영 상태입니다. 사전주문을 유지하면서 11~12시 피크 전 안내를 강화하는 것이 좋습니다.';
+  }
+}
+function renderAdminMiniChart(){
+  const box=$('#adminMiniChart'); if(!box) return;
+  const data=(state.ai?.hourly||buildHourlyFromSales()).filter(x=>Number(x.time.slice(0,2))>=8&&Number(x.time.slice(0,2))<=17);
+  box.innerHTML=data.map(x=>`<div class="admin-col"><div class="admin-bar" style="height:${Math.max(8,x.score)}%" title="${x.time} ${x.score}점"></div><span>${x.time.slice(0,2)}시</span></div>`).join('');
+}
+function renderAdminQueue(){
+  const box=$('#adminQueue'); if(!box) return;
+  const demo=[
+    {id:'A102',menu:'백반 2개',status:'조리중',eta:'5분'},
+    {id:'A103',menu:'덮밥 1개',status:'접수완료',eta:'8분'},
+    {id:'A104',menu:'1000의 아침밥 1개',status:'픽업대기',eta:'2분'}
+  ];
+  const real=state.orders.slice(0,4).map(o=>({id:String(o.id).slice(-5),menu:o.items.map(i=>i.name).join(', '),status:CONFIG.simulation.steps[o.status],eta:o.status===2?'완료':Math.max(1,Math.round((o.pickup-new Date())/60000))+'분'}));
+  const list=real.length?real:demo;
+  box.innerHTML=list.map(o=>`<div class="admin-order"><div><b>주문 #${o.id}</b><p>${o.menu} · 예상 ${o.eta}</p></div><span class="tag ${o.status==='조리중'?'cooking':o.status.includes('완료')?'done':''}">${o.status}</span></div>`).join('');
+}
+function renderAdminMenuRank(){
+  const box=$('#adminMenuRank'); if(!box) return;
+  const base=[
+    {name:'백반',count:186,price:6000},
+    {name:'덮밥',count:154,price:5000},
+    {name:'1000의 아침밥',count:92,price:1000}
+  ];
+  state.orders.forEach(o=>o.items.forEach(item=>{const f=base.find(x=>x.name===item.name); if(f) f.count+=1;}));
+  const max=Math.max(...base.map(x=>x.count));
+  box.innerHTML=base.sort((a,b)=>b.count-a.count).map((m,i)=>`<div class="rank-item"><div class="rank-num">${i+1}</div><div class="rank-name"><b>${m.name}</b><small>${m.count}건 판매</small><div class="rank-bar"><span style="width:${Math.round(m.count/max*100)}%"></span></div></div><div class="rank-sale">${won(m.count*m.price)}</div></div>`).join('');
+}
+
+function countWeekdays(year,monthIndex){
+  const last=new Date(year,monthIndex+1,0).getDate();
+  let count=0;
+  for(let d=1;d<=last;d++) if(CONFIG.openDays.includes(new Date(year,monthIndex,d).getDay())) count++;
+  return count;
+}
+function monthlyFactor(month){
+  let factor=1;
+  if([1,2,7,8].includes(month)) factor*=0.72;
+  if(month===3||month===9) factor*=1.08;
+  if(month===4||month===6||month===10||month===12) factor*=1.06;
+  return factor;
+}
+/* 다음달 식수 예측
+   - 과거 판매량, 월별 계절 요인, 학사일정 요인을 이용해 다음달 총 식수와 일평균 식수를 예측한다.
+   - 관리자 대시보드에서 식자재 준비량과 메뉴별 운영량 추천에 사용한다. */
+function buildMonthlyForecast(){
+  const now=new Date();
+  const target=new Date(now.getFullYear(),now.getMonth()+1,1);
+  const targetMonth=target.getMonth()+1;
+  const weekdays=countWeekdays(target.getFullYear(),target.getMonth());
+  const baseDaily=CONFIG.restaurant.avgDailyUsers;
+  const trend=(Object.values(SALES_2025).reduce((a,b)=>a+b,0)-Object.values(SALES_2024).reduce((a,b)=>a+b,0))/Object.values(SALES_2024).reduce((a,b)=>a+b,0);
+  const factor=monthlyFactor(targetMonth)*(1+trend*.25);
+  const daily=clamp(Math.round(baseDaily*factor),260,590);
+  const total=daily*weekdays;
+  const prevMonth=now.getMonth();
+  const prevWeekdays=countWeekdays(now.getFullYear(),prevMonth);
+  const prevDaily=clamp(Math.round(baseDaily*monthlyFactor(now.getMonth()+1)*(1+trend*.25)),260,590);
+  const prevTotal=prevDaily*prevWeekdays;
+  const compare=prevTotal?Math.round((total-prevTotal)/prevTotal*1000)/10:0;
+  const isVacationMonth=[1,2,7,8].includes(targetMonth);
+  const isExamMonth=[4,6,10,12].includes(targetMonth);
+  const menuPlan=[
+    {name:'백반',ratio:isExamMonth?0.46:0.43,change:isExamMonth?8:isVacationMonth?-7:4},
+    {name:'덮밥',ratio:isExamMonth?0.36:0.34,change:isExamMonth?5:isVacationMonth?-5:3},
+    {name:'1000의 아침밥',ratio:isVacationMonth?0.18:0.23,change:isVacationMonth?-12:isExamMonth?4:2}
+  ].map(m=>({...m,count:Math.round(total*m.ratio)}));
+  return {month:`${targetMonth}월`,total,daily,weekdays,compare,peak:'11:30~12:30',isVacationMonth,isExamMonth,menuPlan};
+}
+/* 다음달 식수 예측 렌더링
+   - 예상 총 식수, 일평균 식수, 피크 시간, 메뉴별 준비량, AI 운영 조언을 화면에 표시한다.
+   - 학생 편의 기능을 넘어 식당 운영 최적화 서비스라는 확장성을 보여주는 핵심 카드다. */
+function renderMonthlyForecast(){
+  const data=buildMonthlyForecast();
+  const set=(id,val)=>{const el=$(id); if(el) el.textContent=val};
+  set('#forecastMonth',data.month+' 예측');
+  set('#forecastTotal',data.total.toLocaleString('ko-KR')+'명');
+  set('#forecastDaily',data.daily.toLocaleString('ko-KR')+'명');
+  set('#forecastPeak',data.peak);
+  set('#forecastCompare',`전월 대비 ${data.compare>=0?'+':''}${data.compare}% · 운영 ${data.weekdays}일 기준`);
+  const max=Math.max(...data.menuPlan.map(m=>m.count));
+  const plan=$('#forecastMenuPlan');
+  if(plan) plan.innerHTML=data.menuPlan.map(m=>`<div class="forecast-row"><b>${m.name}</b><div class="mini-bar"><span style="width:${Math.round(m.count/max*100)}%"></span></div><em>${m.count.toLocaleString('ko-KR')}식</em></div>`).join('');
+  const advice=$('#forecastAdvice');
+  if(advice){
+    if(data.isVacationMonth) advice.textContent='방학 기간 수요 감소가 예상됩니다. 백반·덮밥 기본 준비량은 줄이고, 1000원의 아침밥은 평시 대비 약 12% 감량 준비를 추천합니다.';
+    else if(data.isExamMonth) advice.textContent='시험기간 전후 점심 집중도가 높아질 가능성이 큽니다. 백반 준비량은 약 8%, 덮밥은 약 5% 늘리고 11:30~12:30 조리 인력을 보강하는 것을 추천합니다.';
+    else advice.textContent='평시 수요 기준으로 백반과 덮밥 준비량을 소폭 늘리고, 13:00 이후 픽업 유도를 통해 피크 대기열을 분산하는 것을 추천합니다.';
+  }
+}
+
+function go(page){
+  const target=$(`#${page}Page`); if(!target){showToast('준비 중인 화면입니다');return}
+  state.page=page;
+  $$('.page').forEach(p=>p.classList.remove('active'));
+  target.classList.add('active');
+  $$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.go===page));
+  cls('#main',el=>{el.scrollTop=0});
+  if(page==='admin')renderAdmin();
+}
+function openQR(){
+  const modal=$('#qrModal'), qr=$('#qrCode'); if(!modal||!qr)return;
+  text('#copyUrl',APP_URL);
+  modal.classList.add('open');
+  qr.innerHTML='';
+  try{
+    if(window.QRCode){new QRCode(qr,{text:APP_URL,width:160,height:160,colorDark:'#085041',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel?.H||0});}
+    else{qr.innerHTML='<div class="qr-fallback">QR 모듈 로딩 실패<br><small>아래 URL 복사를 사용하세요</small></div>';}
+  }catch(e){
+    console.warn('[밥줘] QR 생성 실패:',e.message);
+    qr.innerHTML='<div class="qr-fallback">QR 생성 실패<br><small>URL 복사로 대체</small></div>';
+  }
+}
+
+function enableIconFallback(){
+  try{
+    const probe=document.createElement('i');
+    probe.className='ti ti-home';
+    probe.style.position='absolute';
+    probe.style.left='-9999px';
+    document.body.appendChild(probe);
+    const content=getComputedStyle(probe,'::before').content;
+    probe.remove();
+    if(!content || content==='none' || content==='normal' || content==='""'){
+      document.body.classList.add('emoji-icons');
+      console.warn('[밥줘] Tabler Icons CDN 로딩 실패: 이모지 아이콘 대체 모드 사용');
+    }
+  }catch(e){
+    document.body.classList.add('emoji-icons');
+  }
+}
+function initEvents(){
+  document.addEventListener('click',e=>{
+    const goBtn=e.target.closest('[data-go]');if(goBtn)go(goBtn.dataset.go);
+    const demoBtn=e.target.closest('[data-demo]');if(demoBtn)setDemoMode(demoBtn.dataset.demo);
+    const add=e.target.closest('[data-add]');if(add)addCart(Number(add.dataset.add));
+    const chip=e.target.closest('#catTabs .chip');if(chip){$$('#catTabs .chip').forEach(c=>c.classList.remove('active'));chip.classList.add('active');renderMenus(chip.dataset.cat)}
+    const r=e.target.closest('.ripple');if(r){const rect=r.getBoundingClientRect();const wave=document.createElement('span');wave.className='wave';const size=Math.max(rect.width,rect.height);wave.style.width=wave.style.height=size+'px';wave.style.left=(e.clientX-rect.left-size/2)+'px';wave.style.top=(e.clientY-rect.top-size/2)+'px';r.appendChild(wave);setTimeout(()=>wave.remove(),560)}
+  });
+  on('#refreshBtn','click',()=>refreshAI(true));
+  on('#payBtn','click',placeOrder);
+  on('#qrTopBtn','click',openQR);
+  on('#qrQuickBtn','click',openQR);
+  on('#closeModal','click',()=>cls('#qrModal',el=>el.classList.remove('open')));
+  on('#qrModal','click',e=>{if(e.target.id==='qrModal')e.currentTarget.classList.remove('open')});
+  on('#copyBtn','click',async()=>{try{await navigator.clipboard.writeText(APP_URL);showToast('URL이 복사됐어요')}catch(e){showToast('복사 실패: URL을 직접 복사해주세요')}});
+  on('#alarmSwitch','click',e=>{e.currentTarget.classList.toggle('on');showToast(e.currentTarget.classList.contains('on')?'혼잡 알림이 켜졌어요':'혼잡 알림이 꺼졌어요')});
+  on('#rangeTabs','click',e=>{const b=e.target.closest('.chip');if(!b)return;$$('#rangeTabs .chip').forEach(c=>c.classList.remove('active'));b.classList.add('active');const data=state.ai?.hourly||makeHourly(50);const mul=b.dataset.range==='week'?0.9:b.dataset.range==='month'?0.82:1;const label=b.textContent;const ranged=data.map(x=>({...x,score:clamp(Math.round(x.score*mul),5,98)}));renderChart('#infoChart',ranged);updateChartSummary(ranged,label);showToast(`${label} 데이터로 전환했어요`)});
+  window.addEventListener('offline',()=>showToast('오프라인 상태입니다. 로컬 예측으로 계속 작동합니다.'));
+  window.addEventListener('online',()=>showToast('인터넷 연결이 복구됐어요'));
+}
+/* 오류 방어
+   - 시연 중 CDN, 날씨 API, DOM 요소 누락 등으로 오류가 발생해도
+     전체 화면이 멈추지 않도록 사용자에게 안내하고 가능한 기능은 계속 동작시킨다. */
+function renderFatalError(e){
+  console.error('[밥줘] 초기화 오류:',e);
+  const main=$('#main');
+  if(main)main.insertAdjacentHTML('afterbegin',`<div class="error-card"><b>시연 안정화 모드</b><br>일부 스크립트가 실패했지만 로컬 AI 데이터로 계속 표시합니다.<br><small>${e.message||e}</small></div>`);
+  try{state.ai=localAIPredict();renderAI();}catch(err){console.error(err)}
+}
+/* 앱 초기화
+   - 아이콘 fallback, 이벤트 등록, 메뉴/주문/관리자 화면 렌더링, 날씨 로딩, AI 예측 갱신을 순서대로 실행한다. */
+function init(){
+  try{
+    enableIconFallback();
+    renderCats();renderMenus();renderOrders();renderDemoControls();initEvents();refreshAI(false);setInterval(()=>refreshAI(false),5*60*1000);
+  }catch(e){renderFatalError(e)}
+}
+window.addEventListener('error',e=>console.warn('[밥줘] 전역 오류 감지:',e.message));
+window.addEventListener('unhandledrejection',e=>console.warn('[밥줘] 비동기 오류 감지:',e.reason));
+window.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
