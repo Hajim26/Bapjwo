@@ -6,6 +6,9 @@
   <title>밥줘 🍚 | AI 스마트 학식 주문</title>
   <!-- 공모전 제출용 단일 HTML: CSS, JavaScript, AI 예측 로직, Firebase/OpenAI 연동 구조 포함 -->
   <meta name="theme-color" content="#1D9E75" />
+  <meta name="color-scheme" content="light only" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -93,8 +96,8 @@
 
 
     /* 최종 UI 정리: 카드 간격, 버튼 톤, 관리자 화면 균형, 모바일 시연 가독성 개선 */
-    body{background:radial-gradient(circle at top,#f4faf6 0,#e9eee9 42%,#dfe7e2 100%)}
-    .app{background:linear-gradient(180deg,#f8fbf9 0%,var(--bg) 28%,#f3f7f4 100%)}
+    body{background:#e9eee9!important;background:radial-gradient(circle at top,#f4faf6 0,#e9eee9 42%,#dfe7e2 100%)!important}
+    .app{background:#f7f9f7!important;background:linear-gradient(180deg,#f8fbf9 0%,#f7f9f7 28%,#f3f7f4 100%)!important}
     .main{padding-bottom:88px}
     .hero{padding:21px 20px 23px;border-radius:0 0 28px 28px;box-shadow:0 12px 26px rgba(8,80,65,.10)}
     .logo{font-size:26px;letter-spacing:-.9px}.sub{font-size:11.5px}.hello{margin-top:17px}.hello b{font-size:17px}.hello p{font-size:12.5px}
@@ -117,6 +120,15 @@
     .toast{bottom:92px;max-width:calc(100% - 36px);overflow:hidden;text-overflow:ellipsis}
     @media(hover:none){.card:hover,.quick button:hover,.primary-btn:hover,.ghost-btn:hover,.refresh:hover,.add:hover,.cart-order-btn:hover,.demo-option:hover{transform:none}}
     @media(max-width:360px){.grid.two{gap:8px}.home-insight .badge{font-size:10px}.home-insight .rec-time{font-size:20px}.home-insight .mini b{font-size:18px}.admin-kpi b{font-size:20px}.forecast-main{grid-template-columns:1fr}.demo-grid{grid-template-columns:repeat(3,1fr)}}
+
+
+
+    /* 모바일 색상 깨짐 최종 방어: 변수 미적용/다크모드 자동 보정 시에도 핵심 UI 색을 유지 */
+    .app *{ -webkit-tap-highlight-color:rgba(29,158,117,.12); }
+    .card,.menu,.order-card,.chart-card,.admin-card,.modal{ background-color:#ffffff; }
+    .badge,.food,.tag{ background-color:#eaf7f1; }
+    .page,.content{ background-color:transparent; }
+    .muted, small{ color:#7a8781; }
 
   </style>
 </head>
@@ -166,7 +178,7 @@
       <section class="page info-page" id="infoPage">
         <header class="hero"><div class="topbar"><div><div class="logo">식당정보</div><div class="sub">오늘 · 이번주 · 이번달 AI 혼잡도</div></div><button class="icon-btn ripple" data-go="home"><i class="ti ti-home"></i></button></div></header>
         <section class="section"><article class="card range-card"><div class="tabs" id="rangeTabs" style="padding:0 0 10px"><button class="chip active" data-range="today">오늘</button><button class="chip" data-range="week">이번주</button><button class="chip" data-range="month">이번달</button></div></article></section>
-        <section class="section"><article class="card chart-card info-chart"><div class="chart-head"><div><h2 class="section-title"><i class="ti ti-chart-bar"></i> AI 혼잡도 차트</h2><p id="chartSubText">오늘 · 06:00~18:00 · 1시간 단위 · 과거 판매 데이터 기반</p></div></div><div id="infoChart" class="bar-chart"></div><div class="chart-analysis"><div class="bot"><i class="ti ti-robot"></i></div><div><b>AI 분석 요약</b><p id="chartInsight">11:00~12:00 사이 혼잡도가 높고, 13:00 이후부터 여유로운 편입니다.</p></div></div><div class="legend"><span><i style="background:#9fe1cb"></i>0~25 여유</span><span><i style="background:#EF9F27"></i>26~50 보통</span><span><i style="background:#E24B4A"></i>76~100 매우붐빔</span><span><i style="background:#085041"></i>현재 시간대</span></div></article></section>
+        <section class="section"><article class="card chart-card info-chart"><div class="chart-head"><div><h2 class="section-title"><i class="ti ti-chart-bar"></i> AI 혼잡도 차트</h2><p id="chartSubText">오늘 · 06:00~18:00 · 1시간 단위 · 시간대별·일자별 판매 데이터 기반</p></div></div><div id="infoChart" class="bar-chart"></div><div class="chart-analysis"><div class="bot"><i class="ti ti-robot"></i></div><div><b>AI 분석 요약</b><p id="chartInsight">11:00~12:00 사이 혼잡도가 높고, 13:00 이후부터 여유로운 편입니다.</p></div></div><div class="legend"><span><i style="background:#9fe1cb"></i>0~25 여유</span><span><i style="background:#EF9F27"></i>26~50 보통</span><span><i style="background:#E24B4A"></i>76~100 매우붐빔</span><span><i style="background:#085041"></i>현재 시간대</span></div></article></section>
         <section class="section"><article class="card alert-card"><div><h3><i class="ti ti-bell" style="color:var(--primary)"></i> 혼잡 알림 설정</h3><p>추천 시간 또는 혼잡 완화 시 알림을 받습니다.</p></div><button class="switch on" id="alarmSwitch" aria-label="알림 설정"></button></article></section>
         <section class="section"><article class="card pad"><h2 class="section-title"><i class="ti ti-info-circle"></i> 학생식당 정보</h2><div class="info-list"><div class="info-row"><span>학교</span><b>강원대학교 삼척캠퍼스</b></div><div class="info-row"><span>위치</span><b>5공학관 1층</b></div><div class="info-row"><span>운영시간</span><b>06:00~18:00</b></div><div class="info-row"><span>브레이크타임</span><b>15:00~16:00</b></div><div class="info-row"><span>픽업방식</span><b>셀프 픽업</b></div></div></article></section>
       </section>
@@ -239,6 +251,26 @@ const MENUS=[{id:1,name:'덮밥',price:5000,category:'덮밥',emoji:'🍛',desc:
    - 11~12시 판매 비중이 높기 때문에 점심 피크 혼잡도 가중치에 사용한다. */
 const SALES_2024={'08':10034,'09':5378,'10':2131,'11':22525,'12':24932,'13':3875,'14':720,'15':248,'16':1805,'17':4157,'18':2,'20':1};
 const SALES_2025={'07':137,'08':11028,'09':7901,'10':1458,'11':20855,'12':21076,'13':2388,'14':611,'15':243,'16':1406,'17':2760,'18':56};
+/* 일자별 판매 데이터 기반 보강 모델
+   - 1번 키오스크 일자별 매출 데이터(2023.01~2025.11)를 분석해 월별/요일별 수요 가중치를 만들었다.
+   - 같은 날짜의 1번·2번 키오스크 데이터는 날짜 기준 합산하는 구조가 맞다.
+   - 단, 현재 업로드된 2번 키오스크 .xls 파일은 실제 표가 아닌 Excel HTML 프레임 파일이며,
+     참조하는 sheet001.htm 데이터가 함께 포함되지 않아 자동 합산에는 사용하지 못했다.
+   - 따라서 이번 보강본은 1번 키오스크의 일자별 패턴을 반영하고,
+     2번 키오스크 원본을 .xlsx 또는 단일 HTML로 다시 받으면 같은 date 기준으로 즉시 합산 가능하다. */
+const KIOSK_DAILY_MODEL={
+  dateRange:['2023-01-02','2025-11-28'],
+  usableKiosk1Rows:688,
+  usableKiosk2Rows:0,
+  totalReceipts:69033,
+  avgDailyReceipts:100.3,
+  monthAvg:{1:27.0,2:26.1,3:170.8,4:160.9,5:140.6,6:102.5,7:32.0,8:31.5,9:138.8,10:139.2,11:135.6,12:99.2},
+  monthFactor:{1:0.27,2:0.26,3:1.70,4:1.60,5:1.40,6:1.02,7:0.32,8:0.31,9:1.38,10:1.39,11:1.35,12:0.99},
+  weekdayAvg:{'월':117.4,'화':124.2,'수':116.3,'목':98.0,'금':39.3},
+  weekdayFactor:{'월':1.17,'화':1.24,'수':1.16,'목':0.98,'금':0.39},
+  yearlyReceipts:{2023:25038,2024:22840,2025:21155},
+  mergeRule:'같은 date의 1번/2번 키오스크 영수건수와 실매출을 합산한 뒤 월별·요일별 수요 패턴을 계산'
+};
 /* 학사일정 데이터: 시험기간/축제/방학 여부를 판단해
    특정 기간의 혼잡도 보정값으로 사용한다. */
 const ACADEMIC=[{date:'2026-03-02',event:'개강'},{date:'2026-04-20',event:'중간고사'},{date:'2026-06-16',event:'기말고사'},{date:'2026-05-20',event:'축제'},{date:'2026-10-03',event:'체육대회'}];
@@ -374,7 +406,7 @@ async function callAIPrediction(){
    브라우저가 서버로 보낼 수 있는 모든 예측 재료를 하나의 JSON으로 묶는다.
    현재 시각, 요일, 주말 여부, 날씨, 식당 정보, 학사일정, 과거 판매 데이터,
    최근 주문량 추정, 시험기간/방학 여부를 포함한다. */
-function buildAIPayload(){const now=new Date();return{app:'밥줘',app_url:APP_URL,current_time:now.toISOString(),weekday:now.getDay(),is_weekend:[0,6].includes(now.getDay()),weather:state.weather,restaurant:CONFIG.restaurant,academic:ACADEMIC,historical_sales:{'2024':SALES_2024,'2025':SALES_2025},recent_orders:estimateRecentOrders(),exam_week:isExamWeek(now),vacation:isVacation(now),schema:AI_RESPONSE_SCHEMA}}
+function buildAIPayload(){const now=new Date();return{app:'밥줘',app_url:APP_URL,current_time:now.toISOString(),weekday:now.getDay(),weekday_kr:weekdayKr(now),is_weekend:[0,6].includes(now.getDay()),weather:state.weather,restaurant:CONFIG.restaurant,academic:ACADEMIC,historical_sales:{hourly:{'2024':SALES_2024,'2025':SALES_2025},daily_model:KIOSK_DAILY_MODEL},recent_orders:estimateRecentOrders(),demand_factor:demandFactorFromDailyData(now),exam_week:isExamWeek(now),vacation:isVacation(now),schema:AI_RESPONSE_SCHEMA}}
 function normalizeAIPrediction(json){
   if(!json||!json.current||typeof json.current.score!=='number'||!Array.isArray(json.hourly)) throw new Error('AI JSON Schema 불일치');
   json.current.score=clamp(Math.round(json.current.score),0,100);
@@ -387,11 +419,15 @@ function normalizeAIPrediction(json){
   return json;
 }
 function isExamWeek(d){const m=d.getMonth()+1, day=d.getDate();return (m===4&&day>=17&&day<=27)||(m===6&&day>=13&&day<=23)} function isVacation(d){const m=d.getMonth()+1;return [1,2,7,8].includes(m)}
-function estimateRecentOrders(){const h=pad(new Date().getHours());const base=(SALES_2025[h]||500)/365;return Math.round(base*(.8+Math.random()*.4))}
+function weekdayKr(d){return ['일','월','화','수','목','금','토'][d.getDay()]}
+function monthFactorFromDailyData(d=new Date()){return KIOSK_DAILY_MODEL.monthFactor[d.getMonth()+1]||1}
+function weekdayFactorFromDailyData(d=new Date()){return KIOSK_DAILY_MODEL.weekdayFactor[weekdayKr(d)]||0.35}
+function demandFactorFromDailyData(d=new Date()){let factor=(monthFactorFromDailyData(d)*0.62)+(weekdayFactorFromDailyData(d)*0.38);if(isExamWeek(d))factor*=1.08;if(isVacation(d))factor*=0.92;return clamp(Math.round(factor*100)/100,0.28,1.75)}
+function estimateRecentOrders(){const h=pad(new Date().getHours());const base=(SALES_2025[h]||500)/365;return Math.max(0,Math.round(base*demandFactorFromDailyData()*(.85+Math.random()*.3)))}
 function isRestaurantOpen(d=new Date()){const h=d.getHours()+d.getMinutes()/60;const weekdayOpen=CONFIG.openDays.includes(d.getDay());const inHours=h>=CONFIG.openHour&&h<CONFIG.closeHour;const inBreak=h>=CONFIG.breakStart&&h<CONFIG.breakEnd;return weekdayOpen&&inHours&&!inBreak}
 function nextOpenText(d=new Date()){const day=nextBusinessDate(d);return `${day.label} 13:30~13:50`}
 function nextBusinessDate(d=new Date()){for(let i=0;i<8;i++){const day=new Date(d);day.setDate(d.getDate()+i);const isOpenDay=CONFIG.openDays.includes(day.getDay());const nowHour=day.getHours()+day.getMinutes()/60;const canUseToday=i===0&&isOpenDay&&nowHour<13.5; if(isOpenDay&&(i>0||canUseToday))return{date:day,label:i===0?'오늘':'다음 운영일'}}return{date:new Date(d.getTime()+86400000),label:'다음 운영일'}}
-function bestLowCrowdReason(){return '과거 판매 데이터에서 11~12시는 주문이 집중되고, 13:30 이후는 점심 피크가 줄어드는 패턴이 있어 이 시간대를 추천합니다.'}
+function bestLowCrowdReason(){return '시간대별 판매 데이터에서 11~12시는 주문이 집중되고, 일자별 판매 데이터에서 학기 중 월~수 수요가 높게 나타나 13:30 이후 방문을 추천합니다.'}
 
 function demoAIPredict(){
   const scenario=DEMO_SCENARIOS[state.demoMode]||DEMO_SCENARIOS.real;
@@ -431,13 +467,43 @@ function renderDemoControls(){
    - 실제 머신러닝 모델 대신, 확보한 판매 데이터와 운영 규칙을 조합한 휴리스틱 모델이다.
    - 시간대별 과거 판매량을 기반 점수로 사용하고, 점심 피크/시험기간/방학/날씨를 가중치로 반영한다.
    - 운영시간이 아니면 혼잡도 대신 '운영안함'과 다음 운영 추천시간을 표시한다. */
-function localAIPredict(){const now=new Date(), hour=now.getHours(), min=now.getMinutes();if(!isRestaurantOpen(now)){const hourly=makeHourly(42);const best=nextOpenText(now);return{current:{score:0,level:'운영안함',waiting_count:0,waiting_minutes:0,closed:true,dining_users:0,remaining_seats:CONFIG.seats},recommended_time:best,confidence:94,reason:bestLowCrowdReason(),last_updated:now.toISOString(),hourly}}const h=pad(hour);const y24=SALES_2024[h]||0,y25=SALES_2025[h]||0;const avgHour=((y24+y25)/2)/365;let score=18+avgHour*2.25;if(hour===11)score+=28;if(hour===12)score+=30;if(hour===13)score+=8;if(hour===8)score+=10;if(hour===17)score+=5;if([0,6].includes(now.getDay()))score-=22;if(isExamWeek(now))score+=10;if(isVacation(now))score-=18;if(state.weather){const t=state.weather.temperature_2m??24,p=state.weather.precipitation??0;if(p>0)score+=7;if(t>=30||t<=0)score+=4}score=clamp(Math.round(score),8,96);const waiting_count=Math.max(0,Math.round((score/100)*55-12));const waiting_minutes=Math.max(1,Math.round(waiting_count*.55+score/10));const dining_users=clamp(Math.round((score/100)*260+waiting_count*.35),0,CONFIG.seats);const remaining_seats=Math.max(0,CONFIG.seats-dining_users);const recommended=recommendTime(hour,min,score);const hourly=makeHourly(score);const lev=levelFromScore(score);return{current:{score,level:lev.level,waiting_count,waiting_minutes,dining_users,remaining_seats},recommended_time:recommended.time,confidence:recommended.confidence,reason:recommended.reason,last_updated:now.toISOString(),hourly}}
+function localAIPredict(){
+  const now=new Date(), hour=now.getHours(), min=now.getMinutes();
+  if(!isRestaurantOpen(now)){
+    const hourly=makeHourly(42);
+    const best=nextOpenText(now);
+    return{current:{score:0,level:'운영안함',waiting_count:0,waiting_minutes:0,closed:true,dining_users:0,remaining_seats:CONFIG.seats},recommended_time:best,confidence:94,reason:bestLowCrowdReason(),last_updated:now.toISOString(),hourly};
+  }
+  const h=pad(hour), y24=SALES_2024[h]||0, y25=SALES_2025[h]||0;
+  const avgHour=((y24+y25)/2)/365;
+  const dailyFactor=demandFactorFromDailyData(now);
+  let score=18+avgHour*2.25;
+  score*=clamp(0.72+dailyFactor*0.38,0.72,1.34);
+  if(hour===11)score+=28;
+  if(hour===12)score+=30;
+  if(hour===13)score+=8;
+  if(hour===8)score+=10;
+  if(hour===17)score+=5;
+  if([0,6].includes(now.getDay()))score-=22;
+  if(isExamWeek(now))score+=10;
+  if(isVacation(now))score-=18;
+  if(state.weather){const t=state.weather.temperature_2m??24,p=state.weather.precipitation??0;if(p>0)score+=7;if(t>=30||t<=0)score+=4}
+  score=clamp(Math.round(score),8,96);
+  const waiting_count=Math.max(0,Math.round((score/100)*55*dailyFactor-10));
+  const waiting_minutes=Math.max(1,Math.round(waiting_count*.55+score/10));
+  const dining_users=clamp(Math.round((score/100)*260*dailyFactor+waiting_count*.35),0,CONFIG.seats);
+  const remaining_seats=Math.max(0,CONFIG.seats-dining_users);
+  const recommended=recommendTime(hour,min,score,dailyFactor);
+  const hourly=makeHourly(score);
+  const lev=levelFromScore(score);
+  return{current:{score,level:lev.level,waiting_count,waiting_minutes,dining_users,remaining_seats,demand_factor:dailyFactor},recommended_time:recommended.time,confidence:recommended.confidence,reason:recommended.reason,last_updated:now.toISOString(),hourly};
+}
 function timeRangeFromNow(minutesAhead=0,duration=20){const d=new Date();d.setMinutes(d.getMinutes()+minutesAhead);const rounded=Math.ceil(d.getMinutes()/15)*15;d.setMinutes(rounded,0,0);const end=new Date(d.getTime()+duration*60000);return `${pad(d.getHours())}:${pad(d.getMinutes())}~${pad(end.getHours())}:${pad(end.getMinutes())}`}
 /* 추천 방문시간 계산
    - 혼잡도가 높을수록 13시 이후 피크가 빠진 시간대로 추천한다.
    - 혼잡도가 낮으면 현재 또는 가까운 시간대를 추천한다.
    - 신뢰도는 과거 데이터 패턴이 강한 시간대일수록 높게 표시한다. */
-function recommendTime(hour,min,score){if(score>=70)return{time:'13:20~13:40',confidence:92,reason:'11~12시 피크 이후 주문량이 빠르게 감소하는 패턴이 있어 13시 20분 이후 방문을 추천합니다.'};if(score>=45)return{time:'12:45~13:05',confidence:88,reason:'현재는 보통 수준이지만 점심 피크가 남아 있어 15~30분 뒤 방문하면 대기시간이 줄어듭니다.'};return{time:timeRangeFromNow(0,20),confidence:84,reason:'현재 혼잡도가 낮고 좌석 여유가 충분해 바로 방문해도 괜찮습니다.'}}
+function recommendTime(hour,min,score,dailyFactor=1){if(score>=70)return{time:'13:20~13:40',confidence:clamp(Math.round(88+dailyFactor*4),86,95),reason:'시간대별 판매 패턴과 일자별 수요 패턴을 함께 보면 11~12시 피크 이후 주문량이 감소해 13시 20분 이후 방문을 추천합니다.'};if(score>=45)return{time:'12:45~13:05',confidence:clamp(Math.round(84+dailyFactor*4),82,92),reason:'현재는 보통 수준이지만 점심 피크가 남아 있어 15~30분 뒤 방문하면 대기시간이 줄어듭니다.'};return{time:timeRangeFromNow(0,20),confidence:clamp(Math.round(82+dailyFactor*3),80,90),reason:'현재 시간대와 같은 월·요일의 과거 주문 패턴이 낮아 바로 방문해도 괜찮습니다.'}}
 /* 시간대별 혼잡도 차트 데이터 생성
    - 운영시간 06:00~18:00을 1시간 단위로 나눈다.
    - 과거 판매 데이터의 시간대별 평균값을 0~100 혼잡도 점수로 정규화한다.
@@ -445,21 +511,23 @@ function recommendTime(hour,min,score){if(score>=70)return{time:'13:20~13:40',co
 function buildHourlyFromSales(){
   const hours=[];
   for(let h=CONFIG.openHour;h<=CONFIG.closeHour;h++) hours.push(`${pad(h)}:00`);
+  const now=new Date();
+  const demand=demandFactorFromDailyData(now);
   const salesValues=hours.map(t=>{
     const key=t.slice(0,2);
     return ((SALES_2024[key]||0)*0.45)+((SALES_2025[key]||0)*0.55);
   });
   const max=Math.max(...salesValues,1);
-  const now=new Date();
   return hours.map((time,i)=>{
     const h=Number(time.slice(0,2));
     let score=Math.round((salesValues[i]/max)*94);
-    score=clamp(score,5,96);
+    score=score*clamp(0.78+demand*0.22,0.72,1.18);
+    score=clamp(Math.round(score),5,96);
     if(h>=CONFIG.breakStart && h<CONFIG.breakEnd) score=6;
     if(isExamWeek(now) && h>=11 && h<=13) score+=6;
-    if(isVacation(now)) score-=18;
+    if(isVacation(now)) score-=14;
     if(state.weather?.precipitation>0 && h>=11 && h<=13) score+=4;
-    return {time,score:clamp(Math.round(score),5,98),now:h===now.getHours()};
+    return {time,score:clamp(Math.round(score),5,98),now:h===now.getHours(),demand_factor:demand};
   });
 }
 function makeHourly(currentScore){return buildHourlyFromSales()}
@@ -512,7 +580,7 @@ function renderChart(sel,data){
   }).join('');
   box.innerHTML=`<div class="chart-badge"><i class="ti ti-wave-sine"></i> 시간대별 혼잡도 점수 (0~100)</div><div class="chart-plot"><div class="y-axis"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div><div class="bars-area">${bars}</div></div>`;
 }
-function updateChartSummary(data,label='오늘'){if(!data||!data.length)return;const peak=[...data].sort((a,b)=>b.score-a.score)[0];const low=[...data].sort((a,b)=>a.score-b.score)[0];const peakEnd=String((parseInt(peak.time,10)+1)).padStart(2,'0')+':00';const lowEnd=String((parseInt(low.time,10)+1)).padStart(2,'0')+':00';if($('#chartInsight'))$('#chartInsight').textContent=`${peak.time}~${peakEnd} 사이 혼잡도가 가장 높고, ${low.time}~${lowEnd} 시간대가 가장 여유로운 편입니다.`;if($('#chartSubText'))$('#chartSubText').textContent=`${label} · 06:00~18:00 · 1시간 단위 · 과거 판매 데이터 기반`}
+function updateChartSummary(data,label='오늘'){if(!data||!data.length)return;const peak=[...data].sort((a,b)=>b.score-a.score)[0];const low=[...data].sort((a,b)=>a.score-b.score)[0];const peakEnd=String((parseInt(peak.time,10)+1)).padStart(2,'0')+':00';const lowEnd=String((parseInt(low.time,10)+1)).padStart(2,'0')+':00';if($('#chartInsight'))$('#chartInsight').textContent=`${peak.time}~${peakEnd} 사이 혼잡도가 가장 높고, ${low.time}~${lowEnd} 시간대가 가장 여유로운 편입니다.`;if($('#chartSubText'))$('#chartSubText').textContent=`${label} · 06:00~18:00 · 1시간 단위 · 시간대별·일자별 판매 데이터 기반`}
 function renderDates(){const box=$('#dateTabs');if(!box)return;const today=new Date();box.innerHTML='';['오늘','내일','모레','금요일'].forEach((label,i)=>{const d=new Date(today);d.setDate(today.getDate()+i);box.insertAdjacentHTML('beforeend',`<button class="chip ${i===0?'active':''}">${label} ${d.getMonth()+1}/${d.getDate()}</button>`)})}
 function renderCats(){const cats=['전체',...new Set(MENUS.map(m=>m.category))];$('#catTabs').innerHTML=cats.map((c,i)=>`<button class="chip ${i===0?'active':''}" data-cat="${c}">${c}</button>`).join('')}
 function renderMenus(cat='전체'){const list=$('#menuList');const items=cat==='전체'?MENUS:MENUS.filter(m=>m.category===cat);list.innerHTML=items.map(m=>`<article class="card menu"><div class="food">${m.emoji}</div><div style="flex:1"><h3>${m.name} ${m.popular?'<span class="tag">인기</span>':''}</h3><p>${m.desc}${m.time?' · '+m.time:''}</p><div class="menu-price">${won(m.price)}</div></div><button class="add ripple" data-add="${m.id}"><i class="ti ti-plus"></i></button></article>`).join('')}
@@ -610,13 +678,7 @@ function countWeekdays(year,monthIndex){
   for(let d=1;d<=last;d++) if(CONFIG.openDays.includes(new Date(year,monthIndex,d).getDay())) count++;
   return count;
 }
-function monthlyFactor(month){
-  let factor=1;
-  if([1,2,7,8].includes(month)) factor*=0.72;
-  if(month===3||month===9) factor*=1.08;
-  if(month===4||month===6||month===10||month===12) factor*=1.06;
-  return factor;
-}
+function monthlyFactor(month){return KIOSK_DAILY_MODEL.monthFactor[month]||1}
 /* 다음달 식수 예측
    - 과거 판매량, 월별 계절 요인, 학사일정 요인을 이용해 다음달 총 식수와 일평균 식수를 예측한다.
    - 관리자 대시보드에서 식자재 준비량과 메뉴별 운영량 추천에 사용한다. */
@@ -626,13 +688,12 @@ function buildMonthlyForecast(){
   const targetMonth=target.getMonth()+1;
   const weekdays=countWeekdays(target.getFullYear(),target.getMonth());
   const baseDaily=CONFIG.restaurant.avgDailyUsers;
-  const trend=(Object.values(SALES_2025).reduce((a,b)=>a+b,0)-Object.values(SALES_2024).reduce((a,b)=>a+b,0))/Object.values(SALES_2024).reduce((a,b)=>a+b,0);
-  const factor=monthlyFactor(targetMonth)*(1+trend*.25);
-  const daily=clamp(Math.round(baseDaily*factor),260,590);
+  const factor=monthlyFactor(targetMonth);
+  const daily=clamp(Math.round(baseDaily*factor),120,720);
   const total=daily*weekdays;
-  const prevMonth=now.getMonth();
-  const prevWeekdays=countWeekdays(now.getFullYear(),prevMonth);
-  const prevDaily=clamp(Math.round(baseDaily*monthlyFactor(now.getMonth()+1)*(1+trend*.25)),260,590);
+  const prevMonth=now.getMonth()+1;
+  const prevWeekdays=countWeekdays(now.getFullYear(),now.getMonth());
+  const prevDaily=clamp(Math.round(baseDaily*monthlyFactor(prevMonth)),120,720);
   const prevTotal=prevDaily*prevWeekdays;
   const compare=prevTotal?Math.round((total-prevTotal)/prevTotal*1000)/10:0;
   const isVacationMonth=[1,2,7,8].includes(targetMonth);
@@ -642,11 +703,8 @@ function buildMonthlyForecast(){
     {name:'덮밥',ratio:isExamMonth?0.36:0.34,change:isExamMonth?5:isVacationMonth?-5:3},
     {name:'1000의 아침밥',ratio:isVacationMonth?0.18:0.23,change:isVacationMonth?-12:isExamMonth?4:2}
   ].map(m=>({...m,count:Math.round(total*m.ratio)}));
-  return {month:`${targetMonth}월`,total,daily,weekdays,compare,peak:'11:30~12:30',isVacationMonth,isExamMonth,menuPlan};
+  return {month:`${targetMonth}월`,total,daily,weekdays,compare,peak:'11:30~12:30',isVacationMonth,isExamMonth,menuPlan,factor};
 }
-/* 다음달 식수 예측 렌더링
-   - 예상 총 식수, 일평균 식수, 피크 시간, 메뉴별 준비량, AI 운영 조언을 화면에 표시한다.
-   - 학생 편의 기능을 넘어 식당 운영 최적화 서비스라는 확장성을 보여주는 핵심 카드다. */
 function renderMonthlyForecast(){
   const data=buildMonthlyForecast();
   const set=(id,val)=>{const el=$(id); if(el) el.textContent=val};
